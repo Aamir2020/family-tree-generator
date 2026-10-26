@@ -62,3 +62,17 @@ export const demo = { version: 1, title: 'The White family · Breaking Bad', peo
   { id: 'holly-father', from: 'holly', to: 'walter', type: 'father' },
   { id: 'holly-mother', from: 'holly', to: 'skyler', type: 'mother' }
 ] };
+
+export function preloadTree(saved) {
+  if (!saved) return structuredClone(demo);
+  const isBennettExample = saved.title === legacyDemo.title
+    && saved.people.length === legacyDemo.people.length
+    && saved.people.every(person => legacyDemo.people.some(original =>
+      original.id === person.id && original.name === person.name
+    ))
+    && saved.connections.length === legacyDemo.connections.length
+    && saved.connections.every(edge => legacyDemo.connections.some(original =>
+      original.from === edge.from && original.to === edge.to && original.type === edge.type
+    ));
+  return isBennettExample ? structuredClone(demo) : saved;
+}

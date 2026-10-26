@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { demo, validateGraph, addConnection, removePerson, relativePosition } from '../src/graph.js';
+import { demo, legacyDemo, preloadTree, validateGraph, addConnection, removePerson, relativePosition } from '../src/graph.js';
 const person = (id, gender = 'unspecified') => ({id,name:id,gender,born:'',notes:'',x:0,y:0});
 const graph = () => ({version:1,title:'Test',people:[person('a','male'),person('b','female'),person('c','male'),person('d','female')],connections:[]});
 test('example is a valid portable graph',()=>assert.equal(validateGraph(demo),demo));
@@ -13,3 +13,7 @@ test('imports reject malformed positions and duplicate identifiers',()=>{const g
 test('JSON roundtrip retains relationships and positions',()=>assert.deepEqual(validateGraph(JSON.parse(JSON.stringify(demo))),demo));
 test('new relatives are positioned in the appropriate generation',()=>{const g=graph(),p=g.people[0];assert.ok(relativePosition(g,p,'mother').y<p.y);assert.ok(relativePosition(g,p,'son').y>p.y);assert.equal(relativePosition(g,p,'wife').y,p.y);});
 test('birthdays may be blank or omitted on import',()=>{const g=graph();delete g.people[0].born;const imported=validateGraph(g);assert.equal(imported.people[0].born,'');assert.equal(imported.people[1].born,'');assert.doesNotThrow(()=>validateGraph(JSON.parse(JSON.stringify(imported))));});
+
+test('new browsers preload the White family',()=>assert.deepEqual(preloadTree(null),demo));
+test('saved Bennett sample migrates despite dragging, reordered cards, or edited notes',()=>{const saved=structuredClone(legacyDemo);saved.people.reverse();saved.people[0].x+=300;saved.people[0].notes='Exploring the example';assert.deepEqual(preloadTree(saved),demo);});
+test('custom trees and cleared trees are preserved on startup',()=>{const custom=structuredClone(legacyDemo);custom.people[0].name='My own relative';assert.equal(preloadTree(custom),custom);const empty={version:1,title:'My family tree',people:[],connections:[]};assert.equal(preloadTree(empty),empty);});

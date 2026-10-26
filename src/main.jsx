@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GitFork, Plus, Upload, Download, Search, X, Trash2, ZoomIn, ZoomOut, Maximize, Leaf, Users, ChevronRight, Undo2, Link, Check, Move, PanelRightClose, Sun, Moon } from './icons.jsx';
-import { demo, legacyDemo, uid, TYPES, validateGraph, addConnection, removePerson, relativePosition } from './graph';
+import { demo, preloadTree, uid, TYPES, validateGraph, addConnection, removePerson, relativePosition } from './graph';
 import './style.css';
 const KEY = 'kindred-tree-v1';
-function load() { try { const raw = localStorage.getItem(KEY); if (!raw) return structuredClone(demo); const saved = validateGraph(JSON.parse(raw)); return JSON.stringify(saved) === JSON.stringify(legacyDemo) ? structuredClone(demo) : saved; } catch { return structuredClone(demo); } }
+function load() { try { const raw = localStorage.getItem(KEY); return preloadTree(raw ? validateGraph(JSON.parse(raw)) : null); } catch { return structuredClone(demo); } }
 const initials = name => name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('');
 function App() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light');
