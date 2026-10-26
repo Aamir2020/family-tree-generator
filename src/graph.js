@@ -34,6 +34,19 @@ export function addConnection(graph, from, to, type) {
 }
 export function removePerson(graph, id) { return { ...graph, people: graph.people.filter(p => p.id !== id), connections: graph.connections.filter(e => e.from !== id && e.to !== id) }; }
 export function relativePosition(graph, person, type) {
+  const partner = ['wife', 'husband'].includes(type);
+  if (partner) {
+    // Keep partners beside the source. If the preferred side is occupied,
+    // check the opposite side before moving farther away.
+    for (let distance = 250; distance <= 5000; distance += 50) {
+      for (const side of [1, -1]) {
+        const x = person.x + side * distance;
+        const y = person.y;
+        const occupied = graph.people.some(p => Math.abs(p.x - x) < 230 && Math.abs(p.y - y) < 150);
+        if (!occupied) return { x, y };
+      }
+    }
+  }
   const direction = ['mother', 'father'].includes(type) ? -1 : ['son', 'daughter'].includes(type) ? 1 : 0;
   let x = person.x + (direction ? (type === 'mother' ? -130 : type === 'father' ? 130 : 0) : 270);
   const y = person.y + direction * 210;
