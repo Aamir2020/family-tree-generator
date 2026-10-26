@@ -40,7 +40,7 @@ export function relativePosition(graph, person, type) {
   while (graph.people.some(p => Math.abs(p.x - x) < 230 && Math.abs(p.y - y) < 150)) x += 250;
   return { x, y };
 }
-export const demo = {version: 1, title: 'The Bennett family', people: [
+export const legacyDemo = {version: 1, title: 'The Bennett family', people: [
   {id:'1',name:'Arthur Bennett',gender:'male',born:'1946',notes:'A gardener with a story for every season.',x:430,y:130},
   {id:'2',name:'Eleanor Bennett',gender:'female',born:'1948',notes:'The heart of every family gathering.',x:730,y:130},
   {id:'3',name:'James Bennett',gender:'male',born:'1974',notes:'Always planning the next family adventure.',x:430,y:355},
@@ -48,3 +48,17 @@ export const demo = {version: 1, title: 'The Bennett family', people: [
   {id:'5',name:'Oliver Bennett',gender:'male',born:'2004',notes:'',x:300,y:580},
   {id:'6',name:'Emma Bennett',gender:'female',born:'2008',notes:'',x:570,y:580}
 ], connections:[{id:'a',from:'1',to:'2',type:'wife'},{id:'b',from:'3',to:'1',type:'father'},{id:'c',from:'3',to:'2',type:'mother'},{id:'d',from:'3',to:'4',type:'wife'},{id:'e',from:'3',to:'5',type:'son'},{id:'f',from:'3',to:'6',type:'daughter'}]};
+
+// Fictional example; birthday details intentionally left optional.
+export const demo = { version: 1, title: 'The White family · Breaking Bad', people: [
+  { id: 'walter', name: 'Walter White', gender: 'male', born: '', notes: 'Chemistry teacher in Albuquerque. Husband of Skyler and father of Walter Jr. and Holly.', x: 320, y: 160 },
+  { id: 'skyler', name: 'Skyler White', gender: 'female', born: '', notes: 'Wife of Walter and mother of Walter Jr. and Holly.', x: 680, y: 160 },
+  { id: 'flynn', name: 'Walter White Jr.', gender: 'male', born: '', notes: 'Also known as Flynn. Son of Walter and Skyler.', x: 320, y: 470 },
+  { id: 'holly', name: 'Holly White', gender: 'female', born: '', notes: 'Daughter of Walter and Skyler; younger sister of Walter Jr.', x: 680, y: 470 }
+], connections: [
+  { id: 'white-marriage', from: 'walter', to: 'skyler', type: 'wife' },
+  { id: 'flynn-father', from: 'flynn', to: 'walter', type: 'father' },
+  { id: 'flynn-mother', from: 'flynn', to: 'skyler', type: 'mother' },
+  { id: 'holly-father', from: 'holly', to: 'walter', type: 'father' },
+  { id: 'holly-mother', from: 'holly', to: 'skyler', type: 'mother' }
+] };

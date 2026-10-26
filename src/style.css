@@ -61,3 +61,44 @@
 @media(max-width:380px) { header { flex-wrap:wrap; height:auto; min-height:90px; padding-top:10px; padding-bottom:10px; gap:8px; } }
 
 .page-heading .add-top { margin-top: 0; }
+
+/* Canvas-first workspace with a single, persistent tools sidebar. */
+.workspace { margin-left: 0; display: flex; flex-direction: column; height: 100dvh; }
+header { height: 68px; min-height: 68px; padding: 0 24px; }
+main { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; padding: 14px; }
+.editor { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.editor-top { height: 60px; min-height: 60px; }
+.tree-title { flex: 1; }
+.tree-title input { width: min(360px, 40vw); }
+.editor-body { flex: 1; height: auto; min-height: 0; max-height: none; }
+.canvas { min-height: 340px; }
+.details { width: 290px; padding: 20px; }
+.sidebar-actions { display: grid; gap: 12px; padding-bottom: 22px; border-bottom: 1px solid #e0e4d6; margin-bottom: 24px; }
+.sidebar-actions .full { justify-content: center; }
+.file-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.file-actions .button { padding: 10px 8px; font-size: 11px; }
+.clear-tree { color: #a45847; border-color: #dec8bd; background: #fffaf5; }
+.example-button { justify-content: space-between; font-size: 11px; color: #7c8e68; padding: 6px 0; text-align: left; }
+.person-panel .guide-art { margin-top: 22px; }
+.person-panel .guide-steps { margin-top: 22px; gap: 18px; }
+.editor-footer { min-height: 36px; height: 36px; }
+[data-theme="dark"] .sidebar-actions { border-color: #435039; }
+[data-theme="dark"] .clear-tree { color: #e9b6a4; border-color: #705247; background: #3a2d27; }
+[data-theme="dark"] .example-button { color: #bacba5; }
+@media(max-width:760px) {
+  .workspace { height: auto; min-height: 100dvh; }
+  header { padding: 0 16px; }
+  .header-actions .save-status { display: none; }
+  main { padding: 8px; }
+  .editor-body { display: flex; flex-direction: column; height: auto; }
+  .canvas { flex: none; height: 65dvh; min-height: 380px; }
+  .details, .details:has(.detail-avatar) { display: block; position: static; width: 100%; border-left: 0; border-top: 1px solid #e3e5d9; padding: 18px; box-shadow: none; overflow: visible; }
+  .sidebar-actions { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sidebar-actions .panel-title, .sidebar-actions .example-button, .sidebar-actions .file-actions { grid-column: 1 / -1; }
+  .sidebar-actions .green { grid-column: 1; grid-row: 2; }
+  .sidebar-actions .clear-tree { grid-column: 2; grid-row: 2; }
+  .person-panel .guide-art, .person-panel .guide-steps, .person-panel .guide-copy, .person-panel>h2 { display: none; }
+  .person-panel:has(.detail-avatar)>h2 { display: block; }
+  .person-panel .privacy { margin-top: 12px; }
+  .tree-title input { width: min(245px, 48vw); }
+}
