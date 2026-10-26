@@ -1,6 +1,7 @@
 import React from "react";
 import cordycepsUrl from "./assets/cordyceps.svg";
 const paths = {
+ Scan:'M8 3H3v5 M16 3h5v5 M3 16v5h5 M21 16v5h-5 M9 9h6v6H9Z',
  Pencil:'M16 3l5 5 M4 15L16 3a3.5 3.5 0 0 1 5 5L9 20l-6 1Z M4 15l5 5',
  Sun:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M5 19l1.5-1.5 M17.5 6.5L19 5',
  Moon:'M21 13A9 9 0 0 1 11 3a9 9 0 1 0 10 10Z',
@@ -31,3 +32,5 @@ export const Sun=p=><Icon name="Sun" {...p}/>;
 export const Moon=p=><Icon name="Moon" {...p}/>;
 
 export const Pencil=p=><Icon name="Pencil" {...p}/>;
+
+export const Scan=p=><Icon name="Scan" {...p}/>;

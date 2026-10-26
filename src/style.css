@@ -124,3 +124,11 @@ main { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; padd
 .card-actions .card-delete:hover { color: #a24436; background: #f8e9df; border-color: #dcb4a3; }
 [data-theme="dark"] .card-actions .card-delete { color: #dbaa95; }
 [data-theme="dark"] .card-actions .card-delete:hover { color: #f0c3ac; background: #604335; border-color: #96705a; }
+.canvas.select-mode { cursor: crosshair; }
+.person-card.multi-selected, .person-card.multi-selected:hover { border: 2px solid #668257; box-shadow: 0 0 0 5px #7896633d; }
+.selection-marquee { position: absolute; z-index: 3; border: 1.5px solid #6e8d5e; background: #83a7763b; pointer-events: none; }
+.canvas-controls button.selection-toggle { width: auto; min-width: 75px; padding: 0 8px; font-size: 10px; }
+.canvas-controls button.selection-toggle.active { background: #e6edda; color: #446237; }
+[data-theme="dark"] .person-card.multi-selected, [data-theme="dark"] .person-card.multi-selected:hover { border-color: #c5d6a9; box-shadow: 0 0 0 5px #9cbd744f; }
+[data-theme="dark"] .selection-marquee { border-color: #b9ce9d; background: #93b17450; }
+[data-theme="dark"] .canvas-controls button.selection-toggle.active { background: #49613c; color: #f4f8ec; }
