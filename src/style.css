@@ -104,3 +104,5 @@ main { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; padd
 }
 .brand-fungus { margin-right: 10px; flex-shrink: 0; }
 .tree-icon img, .guide-art img, .empty>img { display: block; }
+.connections .connection-hit { fill: none; stroke: transparent; stroke-width: 14px; pointer-events: stroke; cursor: pointer; }
+.connections .connection-hit:focus-visible { outline: none; stroke: #96a38655; }

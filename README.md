@@ -29,9 +29,9 @@ npm run format   # Apply automatic ESLint fixes
 - **Clear tree** warns before removing all people and connections. You can cancel, export first, or undo a confirmed clear during the session.
 - The fictional White family from Breaking Bad is preloaded as the example for new visitors. Custom saved trees remain on this device.
 - Click **+** on a card or **Add a connection** in its details. Choose mother, father, son, daughter, wife, or husband; add a new person or connect someone already in the tree.
-- Shared children of connected partners branch from the midpoint of the partner line. Single-parent links remain direct. Click a shared child label to remove both parent links, or remove one in person details.
-- New parents appear above, children below, and partners beside the selected person. Drag any card to reposition it; drag blank canvas to pan. Zoom and Fit tree are at the bottom left.
-- Relationship labels describe the target person relative to the source person. Click a label or the connection’s × in the details to remove it. Deleting a person also removes their connections. Undo restores the last 30 graph changes.
+- Shared children of connected partners branch from the midpoint of the partner line. Single-parent links remain direct. Click a shared child line to remove both parent links, or remove one in person details.
+- New parents appear above, children below, and partners beside the selected person. Drag any card to reposition it; drag blank canvas to pan. Use the scroll wheel over the canvas to zoom around the pointer. Zoom buttons and Fit tree are at the bottom left.
+- Relationship lines have no text labels; select a person to see their relationships in the sidebar. Click a line or the connection’s × in the details to remove it. Deleting a person also removes their connections. Undo restores the last 30 graph changes.
 - Birthdays are optional. Enter a full date (`YYYY-MM-DD`), a year, or leave the field blank.
 - Use the sun/moon button in the header to switch themes. The initial theme follows your system preference; your choice is saved on this device.
 - Search highlights matching people. Edit the tree name above the canvas.
