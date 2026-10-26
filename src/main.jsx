@@ -18,6 +18,18 @@ function App() {
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(graph)); setStorageError(false); } catch { setStorageError(true); } }, [graph]);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 4500); return () => clearTimeout(timer); }, [notice]);
   useEffect(() => {
+    function clearSelection(event) {
+      if (event.key !== 'Escape' || document.querySelector('dialog[open]')) return;
+      if (!selectMode && selectedIds.length === 0 && !marquee) return;
+      drag.current = null;
+      setMarquee(null);
+      setSelectedIds([]);
+      setSelectMode(false);
+    }
+    window.addEventListener('keydown', clearSelection);
+    return () => window.removeEventListener('keydown', clearSelection);
+  }, [selectMode, selectedIds.length, marquee]);
+  useEffect(() => {
     const element = canvas.current;
     function wheelZoom(event) {
       event.preventDefault();
