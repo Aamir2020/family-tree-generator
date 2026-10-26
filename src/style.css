@@ -106,3 +106,15 @@ main { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; padd
 .tree-icon img, .guide-art img, .empty>img { display: block; }
 .connections .connection-hit { fill: none; stroke: transparent; stroke-width: 14px; pointer-events: stroke; cursor: pointer; }
 .connections .connection-hit:focus-visible { outline: none; stroke: #96a38655; }
+.children-picker { margin: 0; padding: 0; border: 0; display: grid; gap: 10px; max-height: 280px; overflow-y: auto; }
+.children-picker legend { font-size: 11px; color: #768367; margin-bottom: 12px; }
+.child-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #dce1d2; border-radius: 7px; cursor: pointer; }
+.child-option input { width: 16px; height: 16px; margin: 0; accent-color: #607d4d; flex-shrink: 0; }
+.child-option b { display: block; font-size: 12px; font-weight: 550; }
+.child-option small { display: block; margin-top: 5px; font-size: 11px; line-height: 1.5; color: #a45847; }
+.child-option.unavailable { cursor: default; opacity: .75; }
+.partner-actions { flex-wrap: wrap; }
+.partner-actions .button { padding: 10px; font-size: 11px; }
+[data-theme="dark"] .children-picker legend { color: #bac9a8; }
+[data-theme="dark"] .child-option { border-color: #536244; }
+[data-theme="dark"] .child-option small { color: #e9b6a4; }

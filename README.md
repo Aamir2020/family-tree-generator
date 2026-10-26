@@ -29,6 +29,7 @@ npm run format   # Apply automatic ESLint fixes
 - **Clear tree** warns before removing all people and connections. You can cancel, export first, or undo a confirmed clear during the session.
 - The fictional White family from Breaking Bad is preloaded as the example for new visitors. Custom saved trees remain on this device.
 - Click **+** on a card or **Add a connection** in its details. Choose mother, father, son, daughter, wife, or husband; add a new person or connect someone already in the tree.
+- When adding a wife or husband to someone with children, a second step asks which children to connect to the new partner. Choose **Only add partner** to skip. Existing parent slots are respected; unavailable connections show a reason. Adding the partner and selected children can be undone together.
 - Shared children of connected partners branch from the midpoint of the partner line. Single-parent links remain direct. Click a shared child line to remove both parent links, or remove one in person details.
 - New parents appear above, children below, and partners beside the selected person. Drag any card to reposition it; drag blank canvas to pan. Use the scroll wheel over the canvas to zoom around the pointer. Zoom buttons and Fit tree are at the bottom left.
 - Relationship lines have no text labels; select a person to see their relationships in the sidebar. Click a line or the connection’s × in the details to remove it. Deleting a person also removes their connections. Undo restores the last 30 graph changes.
