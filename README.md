@@ -27,7 +27,7 @@ npm run format   # Apply automatic ESLint fixes
 
 - Use the right sidebar to **Add person**, **Import tree**, **Export tree**, or **Clear tree**. Select a card to show its details below the tools.
 - **Clear tree** warns before removing all people and connections. You can cancel, export first, or undo a confirmed clear during the session.
-- **Load Walter White example** loads the fictional White family from Breaking Bad after confirmation. Existing custom trees are preserved until you confirm replacement.
+- The fictional White family from Breaking Bad is preloaded as the example for new visitors. Custom saved trees remain on this device.
 - Click **+** on a card or **Add a connection** in its details. Choose mother, father, son, daughter, wife, or husband; add a new person or connect someone already in the tree.
 - New parents appear above, children below, and partners beside the selected person. Drag any card to reposition it; drag blank canvas to pan. Zoom and Fit tree are at the bottom left.
 - Relationship labels describe the target person relative to the source person. Click a label or the connection’s × in the details to remove it. Deleting a person also removes their connections. Undo restores the last 30 graph changes.

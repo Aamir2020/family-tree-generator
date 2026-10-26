@@ -102,3 +102,5 @@ main { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; padd
   .person-panel .privacy { margin-top: 12px; }
   .tree-title input { width: min(245px, 48vw); }
 }
+.brand-fungus { margin-right: 10px; flex-shrink: 0; }
+.tree-icon img, .guide-art img, .empty>img { display: block; }
