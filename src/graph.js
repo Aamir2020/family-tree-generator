@@ -1,7 +1,7 @@
 export const TYPES = ['mother', 'father', 'son', 'daughter', 'wife', 'husband'];
 export const uid = () => crypto.randomUUID();
 export function validateGraph(graph) {
-  if (!graph || graph.version !== 1 || typeof graph.title !== 'string' || !Array.isArray(graph.people) || !Array.isArray(graph.connections)) throw new Error('Choose a valid Zermander JSON file (version 1).');
+  if (!graph || graph.version !== 1 || typeof graph.title !== 'string' || !Array.isArray(graph.people) || !Array.isArray(graph.connections)) throw new Error('Choose a valid Zermanzer JSON file (version 1).');
   if (graph.people.length > 1000 || graph.connections.length > 5000) throw new Error('This file is too large (maximum 1,000 people and 5,000 connections).');
   const ids = new Set();
   for (const p of graph.people) {

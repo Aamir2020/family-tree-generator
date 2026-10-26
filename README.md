@@ -1,4 +1,4 @@
-# Zermander — Family tree editor
+# Zermanzer — Family tree editor
 
 A frontend-only React family tree builder. Add people, tell their stories, and arrange them on a draggable canvas. No account, database, or backend is required.
 
@@ -30,7 +30,7 @@ npm run format   # Apply automatic ESLint fixes
 - Birthdays are optional. Enter a full date (`YYYY-MM-DD`), a year, or leave the field blank.
 - Use the sun/moon button in the header to switch themes. The initial theme follows your system preference; your choice is saved on this device.
 - Search highlights matching people. Edit the tree name above the canvas.
-- **Export tree** downloads JSON. **Import tree** validates a Zermander JSON file before asking to replace the current tree. Replacement can be undone. Other vendors’ formats, including GEDCOM, are not supported.
+- **Export tree** downloads JSON. **Import tree** validates a Zermanzer JSON file before asking to replace the current tree. Replacement can be undone. Other vendors’ formats, including GEDCOM, are not supported.
 
 Changes are saved in this browser’s local storage. There is no server sync. Export backups before clearing browser data or moving devices. All example people are fictional. Optional Google Fonts requests contain no tree data; system fonts work offline.
 
