@@ -118,3 +118,9 @@ main { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; padd
 [data-theme="dark"] .children-picker legend { color: #bac9a8; }
 [data-theme="dark"] .child-option { border-color: #536244; }
 [data-theme="dark"] .child-option small { color: #e9b6a4; }
+.card-actions { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+.card-actions .card-menu { margin-left: 0; width: 25px; height: 25px; }
+.card-actions .card-delete { color: #ab7764; }
+.card-actions .card-delete:hover { color: #a24436; background: #f8e9df; border-color: #dcb4a3; }
+[data-theme="dark"] .card-actions .card-delete { color: #dbaa95; }
+[data-theme="dark"] .card-actions .card-delete:hover { color: #f0c3ac; background: #604335; border-color: #96705a; }

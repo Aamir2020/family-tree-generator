@@ -25,7 +25,7 @@ npm run format   # Apply automatic ESLint fixes
 
 ## Using the editor
 
-- Use the right sidebar to **Add person**, **Import tree**, **Export tree**, or **Clear tree**. Select a card to show its details below the tools.
+- Use the right sidebar to **Add person**, **Import tree**, **Export tree**, or **Clear tree**. Select a card to show its details below the tools. Use the pencil or trash button on a card to edit or delete that person directly from the diagram. Deletion requires confirmation and can be undone.
 - **Clear tree** warns before removing all people and connections. You can cancel, export first, or undo a confirmed clear during the session.
 - The fictional White family from Breaking Bad is preloaded as the example for new visitors. Custom saved trees remain on this device.
 - Click **+** on a card or **Add a connection** in its details. Choose mother, father, son, daughter, wife, or husband; add a new person or connect someone already in the tree.
