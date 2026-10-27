@@ -1,6 +1,6 @@
 # Zermanzer — Family tree editor
 
-A frontend-only React family tree builder. Add people, tell their stories, and arrange them on a draggable canvas. No account, database, or backend is required.
+A frontend-only React and TypeScript family tree builder. Add people, tell their stories, and arrange them on a draggable canvas. No account, database, or backend is required.
 
 **Website:** [Zermanzer](https://aamir2020.github.io/family-tree-generator/)
 
@@ -16,11 +16,15 @@ npm run dev
 Open the URL Vite prints (usually `http://localhost:5173`).
 
 ```bash
-npm test          # Graph constraints, deletion, positioning, and JSON roundtrip tests
-npm run lint     # ESLint checks
-npm run build    # Production static files in dist/
-npm run preview  # Serve the production build locally
-npm run format   # Apply automatic ESLint fixes
+npm run check         # Formatting, ESLint, strict type checking, and tests
+npm run format        # Format source, styles, Markdown, and configuration with Prettier
+npm run format:check  # Check formatting without changing files
+npm run lint          # Check TypeScript and React hooks with ESLint
+npm run lint:fix      # Apply automatic ESLint fixes
+npm run typecheck     # Check application, tests, and configuration with TypeScript
+npm test              # Run the TypeScript tests using tsx and Node's test runner
+npm run build         # Type check, then build production static files in dist/
+npm run preview       # Serve the production build locally
 ```
 
 ## Using the editor
@@ -42,7 +46,7 @@ Changes are saved in this browser’s local storage. There is no server sync. Ex
 
 ## Data structure
 
-`src/graph.js` implements a directed, labeled graph: `people` store unique IDs, details, and canvas coordinates; `connections` store unique IDs, source/target IDs, and relation types. This allows independent deletion and multiple children or spouses without nesting or duplicating people.
+`src/graph.ts` implements a directed, labeled graph: `people` store unique IDs, details, and canvas coordinates; `connections` store unique IDs, source/target IDs, and relation types. This allows independent deletion and multiple children or spouses without nesting or duplicating people.
 
 A graph has `version: 1`, `title`, `people`, and `connections`. Mother/father links occupy one parent slot per person. Son/daughter links also occupy the source person’s mother or father slot on the child when the source gender is specified. Unspecified parents do not occupy a gendered slot. Ancestry cycles, self links, missing endpoints, duplicate IDs, and multiple connections between the same pair are rejected. Children and spouses can be connected to multiple different people.
 
@@ -50,8 +54,20 @@ Imports are limited to 5 MB, 1,000 people, and 5,000 connections. Layout is manu
 
 ## Project structure
 
-- `src/main.jsx`: React editor, person cards, SVG relationship lines, and dialogs.
-- `src/graph.js`: graph validation, mutations, placement, and synthetic sample data.
-- `src/style.css`: responsive styling.
-- `tests/graph.test.js`: Node test runner tests for the domain model.
-- `.github/workflows/pages.yml`: pull request checks and GitHub Pages deployment.
+- `src/main.tsx`: application entry point.
+- `src/App.tsx`: editor state, canvas interactions, and viewport controls.
+- `src/PersonCard.tsx` and `src/TreeSidebar.tsx`: person cards and the tools/details sidebar.
+- `src/EditorDialog.tsx`, `src/ExportDialog.tsx`, and the review components: editing, confirmations, and relationship dialogs.
+- `src/types.ts`: shared person, relationship, graph, and dialog types.
+- `src/graph.ts`: graph validation, mutations, placement, and fictional sample data.
+- `src/connections.ts` and `src/routing.ts`: family connection layout and routing around cards.
+- `src/selection.ts` and `src/people.ts`: group selection and derived sibling relationships.
+- `src/style.css` and `src/theme.ts`: responsive styling and initial theme preference.
+- `tests/*.test.ts`: domain model, relationships, routing, and selection tests.
+- `tsconfig.json`, `eslint.config.ts`, and `.prettierrc.json`: TypeScript, lint, and formatting configuration.
+
+## Code conventions
+
+TypeScript runs in strict mode across the application, tests, and tooling configuration. Imported JSON is validated at runtime before becoming a typed family graph. Components have explicit props, and editor dialogs use a discriminated union for their state.
+
+Use two spaces, single quotes, and semicolons; Prettier applies these conventions automatically. Keep components and graph operations in focused modules. Run `npm run format` after editing and `npm run check` before committing. Production builds also require successful type checking.
