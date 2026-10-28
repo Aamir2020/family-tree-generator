@@ -305,7 +305,7 @@ export default function EditorDialog({
                       autoFocus
                       required
                       maxLength={100}
-                      placeholder="e.g. Skyler White"
+                      placeholder="e.g. Jane Smith"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />

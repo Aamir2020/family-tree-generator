@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { demo } from '../src/graph';
+import { whiteExample as demo } from '../src/sample-families';
 import { connectionLayout } from '../src/connections';
 
 test('shared children branch from one partner midpoint without duplicate parent lines', () => {

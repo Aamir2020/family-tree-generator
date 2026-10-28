@@ -1,3 +1,8 @@
+import { bennettExample, royalExample, whiteExample } from './sample-families';
+export {
+  bennettExample as legacyDemo,
+  royalExample as demo,
+} from './sample-families';
 import type { FamilyGraph, Person, Point, Relationship } from './types';
 export const TYPES: Relationship[] = [
   'mother',
@@ -205,146 +210,43 @@ export function relativePosition(
     x += 250;
   return { x, y };
 }
-export const legacyDemo: FamilyGraph = {
-  version: 1,
-  title: 'The Bennett family',
-  people: [
-    {
-      id: '1',
-      name: 'Arthur Bennett',
-      gender: 'male',
-      born: '1946',
-      notes: 'A gardener with a story for every season.',
-      x: 430,
-      y: 130,
-    },
-    {
-      id: '2',
-      name: 'Eleanor Bennett',
-      gender: 'female',
-      born: '1948',
-      notes: 'The heart of every family gathering.',
-      x: 730,
-      y: 130,
-    },
-    {
-      id: '3',
-      name: 'James Bennett',
-      gender: 'male',
-      born: '1974',
-      notes: 'Always planning the next family adventure.',
-      x: 430,
-      y: 355,
-    },
-    {
-      id: '4',
-      name: 'Sophie Bennett',
-      gender: 'female',
-      born: '1977',
-      notes: 'Collector of recipes and little moments.',
-      x: 730,
-      y: 355,
-    },
-    {
-      id: '5',
-      name: 'Oliver Bennett',
-      gender: 'male',
-      born: '2004',
-      notes: '',
-      x: 300,
-      y: 580,
-    },
-    {
-      id: '6',
-      name: 'Emma Bennett',
-      gender: 'female',
-      born: '2008',
-      notes: '',
-      x: 570,
-      y: 580,
-    },
-  ],
-  connections: [
-    { id: 'a', from: '1', to: '2', type: 'wife' },
-    { id: 'b', from: '3', to: '1', type: 'father' },
-    { id: 'c', from: '3', to: '2', type: 'mother' },
-    { id: 'd', from: '3', to: '4', type: 'wife' },
-    { id: 'e', from: '3', to: '5', type: 'son' },
-    { id: 'f', from: '3', to: '6', type: 'daughter' },
-  ],
-};
-
-// Fictional example; birthday details intentionally left optional.
-export const demo: FamilyGraph = {
-  version: 1,
-  title: 'The White family · Breaking Bad',
-  people: [
-    {
-      id: 'walter',
-      name: 'Walter White',
-      gender: 'male',
-      born: '',
-      notes:
-        'Chemistry teacher in Albuquerque. Husband of Skyler and father of Walter Jr. and Holly.',
-      x: 320,
-      y: 160,
-    },
-    {
-      id: 'skyler',
-      name: 'Skyler White',
-      gender: 'female',
-      born: '',
-      notes: 'Wife of Walter and mother of Walter Jr. and Holly.',
-      x: 680,
-      y: 160,
-    },
-    {
-      id: 'flynn',
-      name: 'Walter White Jr.',
-      gender: 'male',
-      born: '',
-      notes: 'Also known as Flynn. Son of Walter and Skyler.',
-      x: 320,
-      y: 470,
-    },
-    {
-      id: 'holly',
-      name: 'Holly White',
-      gender: 'female',
-      born: '',
-      notes: 'Daughter of Walter and Skyler; younger sister of Walter Jr.',
-      x: 680,
-      y: 470,
-    },
-  ],
-  connections: [
-    { id: 'white-marriage', from: 'walter', to: 'skyler', type: 'wife' },
-    { id: 'flynn-father', from: 'flynn', to: 'walter', type: 'father' },
-    { id: 'flynn-mother', from: 'flynn', to: 'skyler', type: 'mother' },
-    { id: 'holly-father', from: 'holly', to: 'walter', type: 'father' },
-    { id: 'holly-mother', from: 'holly', to: 'skyler', type: 'mother' },
-  ],
-};
-
-export function preloadTree(saved: FamilyGraph | null): FamilyGraph {
-  if (!saved) return structuredClone(demo);
-  const isBennettExample =
-    saved.title === legacyDemo.title &&
-    saved.people.length === legacyDemo.people.length &&
+function matchesExample(
+  saved: FamilyGraph,
+  example: FamilyGraph,
+  compareDetails: boolean,
+): boolean {
+  return (
+    saved.title === example.title &&
+    saved.people.length === example.people.length &&
     saved.people.every((person) =>
-      legacyDemo.people.some(
+      example.people.some(
         (original) =>
-          original.id === person.id && original.name === person.name,
+          original.id === person.id &&
+          original.name === person.name &&
+          (!compareDetails ||
+            (original.gender === person.gender &&
+              original.born === person.born &&
+              original.notes === person.notes)),
       ),
     ) &&
-    saved.connections.length === legacyDemo.connections.length &&
+    saved.connections.length === example.connections.length &&
     saved.connections.every((edge) =>
-      legacyDemo.connections.some(
+      example.connections.some(
         (original) =>
           original.from === edge.from &&
           original.to === edge.to &&
           original.type === edge.type,
       ),
-    );
-  return isBennettExample ? structuredClone(demo) : saved;
+    )
+  );
+}
+
+export function preloadTree(saved: FamilyGraph | null): FamilyGraph {
+  if (!saved) return structuredClone(royalExample);
+  // Keep the existing Bennett migration, but preserve edited White-family details.
+  // Card positions and array order do not turn an otherwise unchanged sample into a custom tree.
+  const oldExample =
+    matchesExample(saved, bennettExample, false) ||
+    matchesExample(saved, whiteExample, true);
+  return oldExample ? structuredClone(royalExample) : saved;
 }

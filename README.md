@@ -33,7 +33,7 @@ Click **Add person** to start. Click **+** on a person to add a relative or conn
 
 Use **Select** to draw a selection box and move several people together. **Import tree**, **Export tree**, and **Clear tree** are in the sidebar.
 
-New visitors see a fictional example based on the White family from Breaking Bad.
+New visitors see a British royal family example: William, Catherine, and their three children. Relationships are based on the [Royal Family’s official biography](https://www.royal.uk/the-prince-of-wales).
 
 ## Development
 

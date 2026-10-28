@@ -1,5 +1,6 @@
 import type { FamilyGraph, Person, Gender } from '../src/types';
 import test from 'node:test';
+import { whiteExample } from '../src/sample-families';
 import assert from 'node:assert/strict';
 import {
   demo,
@@ -93,8 +94,54 @@ test('birthdays may be blank or omitted on import', () => {
   );
 });
 
-test('new browsers preload the White family', () =>
-  assert.deepEqual(preloadTree(null), demo));
+test('new browsers preload the British royal family', () => {
+  const tree = preloadTree(null);
+  assert.deepEqual(tree, demo);
+  assert.notEqual(tree, demo);
+  assert.equal(tree.title, 'The British royal family');
+  assert.deepEqual(
+    tree.people.map((person) => person.id),
+    ['william', 'catherine', 'george', 'charlotte', 'louis'],
+  );
+  for (const child of ['george', 'charlotte', 'louis']) {
+    assert.ok(
+      tree.connections.some(
+        (edge) =>
+          edge.from === child &&
+          edge.to === 'william' &&
+          edge.type === 'father',
+      ),
+    );
+    assert.ok(
+      tree.connections.some(
+        (edge) =>
+          edge.from === child &&
+          edge.to === 'catherine' &&
+          edge.type === 'mother',
+      ),
+    );
+  }
+});
+
+test('unchanged White examples migrate after reordering or moving cards', () => {
+  const saved = structuredClone(whiteExample);
+  saved.people.reverse();
+  saved.connections.reverse();
+  saved.people[0].x += 300;
+  assert.deepEqual(preloadTree(saved), demo);
+});
+
+test('customized White-family trees are preserved', () => {
+  const saved = structuredClone(whiteExample);
+  saved.people[0].notes = 'My own note';
+  assert.equal(preloadTree(saved), saved);
+  const withNewPerson = structuredClone(whiteExample);
+  withNewPerson.people.push(person('new-relative'));
+  assert.equal(preloadTree(withNewPerson), withNewPerson);
+  const renamed = structuredClone(whiteExample);
+  renamed.title = 'My tree';
+  assert.equal(preloadTree(renamed), renamed);
+});
 test('saved Bennett sample migrates despite dragging, reordered cards, or edited notes', () => {
   const saved = structuredClone(legacyDemo);
   saved.people.reverse();
