@@ -9,8 +9,6 @@ export interface ConnectionLine {
   description?: string;
 }
 
-import { createRouter, midpoint, pathFor } from './routing';
-
 const isPartner = (edge: Connection) => ['wife', 'husband'].includes(edge.type);
 const parentLink = (edge: Connection) =>
   ['mother', 'father'].includes(edge.type)
@@ -19,17 +17,30 @@ const parentLink = (edge: Connection) =>
       ? { parent: edge.from, child: edge.to, edge }
       : null;
 
+function endpoints(a: Person, b: Person, partner: boolean) {
+  const ax = a.x + 110;
+  const ay = a.y + 66;
+  const bx = b.x + 110;
+  const by = b.y + 66;
+  return partner
+    ? {
+        sx: ax + (bx > ax ? 110 : -110),
+        sy: ay,
+        tx: bx + (bx > ax ? -110 : 110),
+        ty: by,
+      }
+    : {
+        sx: ax,
+        sy: ay + (by > ay ? 66 : -66),
+        tx: bx,
+        ty: by + (by > ay ? -66 : 66),
+      };
+}
+
 // Rendering groups are derived from the graph; stored parent links stay independent.
 export function connectionLayout(graph: FamilyGraph): ConnectionLine[] {
   const people = new Map(graph.people.map((person) => [person.id, person]));
-  const router = createRouter(graph.people);
   const partners = graph.connections.filter(isPartner);
-  const partnerRoutes = new Map(
-    partners.map((edge) => [
-      edge.id,
-      router.between(people.get(edge.from)!, people.get(edge.to)!, true),
-    ]),
-  );
   const parentsByChild = new Map<
     string,
     NonNullable<ReturnType<typeof parentLink>>[]
@@ -48,6 +59,7 @@ export function connectionLayout(graph: FamilyGraph): ConnectionLine[] {
   >();
   const grouped = new Set<string>();
   for (const [child, links] of parentsByChild) {
+    // Only merge explicitly recorded co-parents who have a partner connection.
     const couple = partners.find(
       (edge) =>
         links.some((link) => link.parent === edge.from) &&
@@ -64,42 +76,43 @@ export function connectionLayout(graph: FamilyGraph): ConnectionLine[] {
   }
   const lines: ConnectionLine[] = [];
   for (const { couple, children } of families.values()) {
-    const origin = midpoint(partnerRoutes.get(couple.id)!);
-    if (!origin) continue;
+    const { sx, sy, tx, ty } = endpoints(
+      people.get(couple.from)!,
+      people.get(couple.to)!,
+      true,
+    );
+    // A symmetric cubic partner curve passes through this exact midpoint.
+    const x = (sx + tx) / 2;
+    const y = (sy + ty) / 2;
     const below =
-      children.reduce(
-        (sum, child) => sum + child.person.y + 66 - origin.y,
-        0,
-      ) >= 0;
+      children.reduce((sum, child) => sum + child.person.y + 66 - y, 0) >= 0;
+    const targets = children.map((child) => ({
+      ...child,
+      x: child.person.x + 110,
+      y: child.person.y + (below ? 0 : 132),
+    }));
     const nearest = below
-      ? Math.min(...children.map((child) => child.person.y))
-      : Math.max(...children.map((child) => child.person.y + 132));
-    const junction = router.nearestFree({
-      x: origin.x,
-      y: (origin.y + nearest) / 2,
-    });
-    if (!junction) continue;
-    const trunk = router.route(origin, junction);
-    if (!trunk) continue;
+      ? Math.min(...targets.map((child) => child.y))
+      : Math.max(...targets.map((child) => child.y));
+    const busY = (y + nearest) / 2;
+    const xs = [x, ...targets.map((child) => child.x)];
     lines.push({
       id: `union-${couple.id}`,
       kind: 'union',
-      path: pathFor(trunk),
+      path: `M ${x} ${y} V ${busY} M ${Math.min(...xs)} ${busY} H ${Math.max(...xs)}`,
       edges: [],
     });
-    for (const child of children) {
+    for (const child of targets) {
       const label =
         child.person.gender === 'female'
           ? 'daughter'
           : child.person.gender === 'male'
             ? 'son'
             : 'child';
-      // Each branch starts on the routed trunk. Routing a separate horizontal bus
-      // could leave disconnected branches when a card covered one of its taps.
       lines.push({
         id: `child-${couple.id}-${child.person.id}`,
         kind: 'child',
-        path: pathFor(router.toPerson(junction, child.person)),
+        path: `M ${child.x} ${busY} V ${child.y}`,
         label,
         edges: child.edges,
         description: `Remove parent connections for ${child.person.name}`,
@@ -111,15 +124,16 @@ export function connectionLayout(graph: FamilyGraph): ConnectionLine[] {
     const a = people.get(edge.from)!;
     const b = people.get(edge.to)!;
     const partner = isPartner(edge);
-    const points = partner
-      ? partnerRoutes.get(edge.id)!
-      : router.between(a, b, false);
+    const { sx, sy, tx, ty } = endpoints(a, b, partner);
+    const midY = (sy + ty) / 2;
     lines.push({
       id: edge.id,
       kind: partner ? 'partner' : 'parent',
       edges: [edge],
       label: edge.type,
-      path: pathFor(points),
+      path: partner
+        ? `M ${sx} ${sy} C ${(sx + tx) / 2} ${sy}, ${(sx + tx) / 2} ${ty}, ${tx} ${ty}`
+        : `M ${sx} ${sy} C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${ty}`,
       description: `Delete ${edge.type} connection between ${a.name} and ${b.name}`,
     });
   }

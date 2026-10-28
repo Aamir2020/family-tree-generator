@@ -4,6 +4,8 @@ A frontend-only React and TypeScript family tree builder. Add people, tell their
 
 **Website:** [Zermanzer](https://aamir2020.github.io/family-tree-generator/)
 
+![Zermanzer family tree editor with the White family diagram and person details sidebar](docs/images/zermanzer-ui.png)
+
 ## Run locally
 
 Requires Node.js 22.12 or later and npm.
@@ -60,10 +62,10 @@ Imports are limited to 5 MB, 1,000 people, and 5,000 connections. Layout is manu
 - `src/EditorDialog.tsx`, `src/ExportDialog.tsx`, and the review components: editing, confirmations, and relationship dialogs.
 - `src/types.ts`: shared person, relationship, graph, and dialog types.
 - `src/graph.ts`: graph validation, mutations, placement, and fictional sample data.
-- `src/connections.ts` and `src/routing.ts`: family connection layout and routing around cards.
+- `src/connections.ts`: curved relationship lines and shared parent/child branches.
 - `src/selection.ts` and `src/people.ts`: group selection and derived sibling relationships.
 - `src/style.css` and `src/theme.ts`: responsive styling and initial theme preference.
-- `tests/*.test.ts`: domain model, relationships, routing, and selection tests.
+- `tests/*.test.ts`: domain model, relationships, connection layout, and selection tests.
 - `tsconfig.json`, `eslint.config.ts`, and `.prettierrc.json`: TypeScript, lint, and formatting configuration.
 
 ## Code conventions

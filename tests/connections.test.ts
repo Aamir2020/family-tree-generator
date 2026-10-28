@@ -1,4 +1,3 @@
-import type { FamilyGraph, Person, Point } from '../src/types';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { demo } from '../src/graph';
@@ -63,11 +62,7 @@ test('dragging either parent recomputes the exact partner midpoint', () => {
   graph.people[1].x += 100;
   graph.people[1].y += 50;
   const union = connectionLayout(graph).find((line) => line.kind === 'union');
-  assert.notEqual(
-    union!.path,
-    connectionLayout(demo).find((line) => line.kind === 'union')!.path,
-  );
-  assertAvoidsCards(graph);
+  assert.ok(union!.path.startsWith('M 660 251 V'));
   assert.ok(
     connectionLayout(graph).every((line) => !line.path.includes('NaN')),
   );
@@ -101,138 +96,20 @@ test('separate couples do not share child branches', () => {
   );
 });
 
-function pointsOf(path: string): Point[] {
-  const tokens = path.match(/[MHV]|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi) || [];
-  const points: Point[] = [];
-  for (let index = 0; index < tokens.length;) {
-    const command = tokens[index++];
-    const previous = points.at(-1)!;
-    if (command === 'M')
-      points.push({ x: Number(tokens[index++]), y: Number(tokens[index++]) });
-    else if (command === 'H')
-      points.push({ x: Number(tokens[index++]), y: previous.y });
-    else if (command === 'V')
-      points.push({ x: previous.x, y: Number(tokens[index++]) });
-    else throw new Error(`Unexpected path command ${command}`);
-  }
-  return points;
-}
-
-function assertAvoidsCards(graph: FamilyGraph) {
-  const layout = connectionLayout(graph);
-  for (const line of layout) {
-    const points = pointsOf(line.path);
-    assert.ok(points.length, `${line.id} must remain visible`);
-    for (let index = 1; index < points.length; index++) {
-      const a = points[index - 1];
-      const b = points[index];
-      for (const person of graph.people) {
-        const intersects =
-          a.x === b.x
-            ? a.x > person.x &&
-              a.x < person.x + 220 &&
-              Math.max(Math.min(a.y, b.y), person.y) <
-                Math.min(Math.max(a.y, b.y), person.y + 132)
-            : a.y > person.y &&
-              a.y < person.y + 132 &&
-              Math.max(Math.min(a.x, b.x), person.x) <
-                Math.min(Math.max(a.x, b.x), person.x + 220);
-        assert.ok(
-          !intersects,
-          `${line.id} crosses ${person.name}: ${line.path}`,
-        );
-      }
-    }
-  }
-  return layout;
-}
-const personAt = (id: string, x: number, y: number): Person => ({
-  id,
-  name: id,
-  gender: 'unspecified',
-  born: '',
-  notes: '',
-  x,
-  y,
-});
-
-test('a card dragged over a direct parent line forces a continuous detour', () => {
-  const graph: FamilyGraph = {
-    version: 1,
-    title: 'Routing test',
-    people: [
-      personAt('parent', 0, 0),
-      personAt('child', 0, 600),
-      personAt('blocker', 400, 280),
-    ],
-    connections: [
-      { id: 'parent-child', from: 'parent', to: 'child', type: 'son' },
-    ],
-  };
-  const before = connectionLayout(graph)[0].path;
-  graph.people[2].x = 0;
-  const after = assertAvoidsCards(graph)[0].path;
-  assert.notEqual(after, before);
-  graph.people[2].x = 400;
-  assert.equal(connectionLayout(graph)[0].path, before);
-});
-
-test('a card covering the former family bus junction cannot disable routing', () => {
+test('unrelated cards do not alter connection paths', () => {
   const graph = structuredClone(demo);
-  graph.people.push(personAt('junction blocker', 500, 290));
-  const layout = assertAvoidsCards(graph);
-  const trunk = pointsOf(layout.find((line) => line.kind === 'union')!.path);
-  for (const child of layout.filter((line) => line.kind === 'child')) {
-    assert.deepEqual(
-      pointsOf(child.path)[0],
-      trunk.at(-1),
-      'children must still join the trunk',
-    );
-  }
-});
-
-test('children join the actual partner line after it detours around a card', () => {
-  const graph = structuredClone(demo);
-  graph.people[1].x = 1050;
-  graph.people.push(personAt('partner blocker', 650, 160));
-  const layout = assertAvoidsCards(graph);
-  const origin = pointsOf(
-    layout.find((line) => line.kind === 'union')!.path,
-  )[0];
-  const partner = pointsOf(
-    layout.find((line) => line.kind === 'partner')!.path,
+  const original = connectionLayout(graph).map((line) => line.path);
+  graph.people.push({
+    id: 'overlapping-card',
+    name: 'Unrelated person',
+    gender: 'unspecified',
+    born: '',
+    notes: '',
+    x: 500,
+    y: 290,
+  });
+  assert.deepEqual(
+    connectionLayout(graph).map((line) => line.path),
+    original,
   );
-  assert.ok(
-    partner.slice(1).some((b, index) => {
-      const a = partner[index];
-      return (
-        (a.x === b.x &&
-          origin.x === a.x &&
-          origin.y >= Math.min(a.y, b.y) &&
-          origin.y <= Math.max(a.y, b.y)) ||
-        (a.y === b.y &&
-          origin.y === a.y &&
-          origin.x >= Math.min(a.x, b.x) &&
-          origin.x <= Math.max(a.x, b.x))
-      );
-    }),
-    'the family trunk must start on the visible partner line',
-  );
-});
-
-test('routing can detour around multiple cards without crossing either endpoint', () => {
-  const graph: FamilyGraph = {
-    version: 1,
-    title: 'Routing test',
-    people: [
-      personAt('parent', 0, 0),
-      personAt('child', 350, 650),
-      personAt('first blocker', -10, 220),
-      personAt('second blocker', 250, 410),
-    ],
-    connections: [
-      { id: 'parent-child', from: 'parent', to: 'child', type: 'daughter' },
-    ],
-  };
-  assertAvoidsCards(graph);
 });
