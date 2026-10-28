@@ -1,6 +1,6 @@
 import type { FamilyGraph, Person, Gender } from '../src/types';
 import test from 'node:test';
-import { whiteExample } from '../src/sample-families';
+import { whiteExample, walesExample } from '../src/sample-families';
 import assert from 'node:assert/strict';
 import {
   demo,
@@ -101,7 +101,17 @@ test('new browsers preload the British royal family', () => {
   assert.equal(tree.title, 'The British royal family');
   assert.deepEqual(
     tree.people.map((person) => person.id),
-    ['william', 'catherine', 'george', 'charlotte', 'louis'],
+    [
+      'elizabeth',
+      'philip',
+      'charles',
+      'diana',
+      'william',
+      'catherine',
+      'george',
+      'charlotte',
+      'louis',
+    ],
   );
   for (const child of ['george', 'charlotte', 'louis']) {
     assert.ok(
@@ -160,4 +170,43 @@ test('custom trees and cleared trees are preserved on startup', () => {
     connections: [],
   };
   assert.equal(preloadTree(empty), empty);
+});
+
+test('royal example includes the ancestry through Elizabeth II and Philip', () => {
+  const links = demo.connections;
+  for (const [child, parent, role] of [
+    ['charles', 'elizabeth', 'mother'],
+    ['charles', 'philip', 'father'],
+    ['william', 'charles', 'father'],
+    ['william', 'diana', 'mother'],
+  ]) {
+    assert.ok(
+      links.some(
+        (edge) =>
+          edge.from === child && edge.to === parent && edge.type === role,
+      ),
+    );
+  }
+  assert.ok(
+    links.some(
+      (edge) =>
+        edge.from === 'philip' &&
+        edge.to === 'elizabeth' &&
+        edge.type === 'wife',
+    ),
+  );
+  assert.ok(
+    !links.some(
+      (edge) =>
+        ['charles', 'diana'].includes(edge.from) &&
+        ['charles', 'diana'].includes(edge.to),
+    ),
+  );
+});
+
+test('previous royal example gains ancestors while customized royal trees stay intact', () => {
+  assert.deepEqual(preloadTree(structuredClone(walesExample)), demo);
+  const customized = structuredClone(walesExample);
+  customized.people[0].notes = 'A note added by the user';
+  assert.equal(preloadTree(customized), customized);
 });

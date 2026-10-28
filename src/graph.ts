@@ -1,4 +1,9 @@
-import { bennettExample, royalExample, whiteExample } from './sample-families';
+import {
+  bennettExample,
+  royalExample,
+  whiteExample,
+  walesExample,
+} from './sample-families';
 export {
   bennettExample as legacyDemo,
   royalExample as demo,
@@ -243,10 +248,11 @@ function matchesExample(
 
 export function preloadTree(saved: FamilyGraph | null): FamilyGraph {
   if (!saved) return structuredClone(royalExample);
-  // Keep the existing Bennett migration, but preserve edited White-family details.
+  // Keep the existing Bennett migration, but preserve edits to later examples.
   // Card positions and array order do not turn an otherwise unchanged sample into a custom tree.
   const oldExample =
     matchesExample(saved, bennettExample, false) ||
-    matchesExample(saved, whiteExample, true);
+    matchesExample(saved, whiteExample, true) ||
+    matchesExample(saved, walesExample, true);
   return oldExample ? structuredClone(royalExample) : saved;
 }

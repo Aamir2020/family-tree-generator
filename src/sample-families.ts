@@ -124,7 +124,7 @@ export const whiteExample: FamilyGraph = {
 // A small public example from the Royal Family's official biographies:
 // https://www.royal.uk/the-prince-of-wales
 // https://www.royal.uk/the-princess-of-wales
-export const royalExample: FamilyGraph = {
+export const walesExample: FamilyGraph = {
   version: 1,
   title: 'The British royal family',
   people: [
@@ -193,5 +193,74 @@ export const royalExample: FamilyGraph = {
     },
     { id: 'louis-father', from: 'louis', to: 'william', type: 'father' },
     { id: 'louis-mother', from: 'louis', to: 'catherine', type: 'mother' },
+  ],
+};
+
+// The ancestry branch through Charles and Diana to Elizabeth II and Philip.
+// Charles and Diana are linked as William's parents, without a spouse edge:
+// their marriage ended in divorce. Sources:
+// https://www.royal.uk/the-king
+// https://www.royal.uk/diana-princess-wales
+// https://www.royal.uk/family-life
+export const royalExample: FamilyGraph = {
+  ...walesExample,
+  people: [
+    {
+      id: 'elizabeth',
+      name: 'Queen Elizabeth II',
+      gender: 'female',
+      born: '',
+      notes:
+        'Wife of Prince Philip, mother of Charles, and grandmother of William.',
+      x: 260,
+      y: 60,
+    },
+    {
+      id: 'philip',
+      name: 'Prince Philip',
+      gender: 'male',
+      born: '',
+      notes:
+        'Duke of Edinburgh. Husband of Elizabeth II and father of Charles.',
+      x: 620,
+      y: 60,
+    },
+    {
+      id: 'charles',
+      name: 'King Charles III',
+      gender: 'male',
+      born: '',
+      notes:
+        'Son of Elizabeth II and Philip. Father of William. His marriage to Diana ended in divorce.',
+      x: 260,
+      y: 310,
+    },
+    {
+      id: 'diana',
+      name: 'Diana, Princess of Wales',
+      gender: 'female',
+      born: '',
+      notes: 'Mother of William. Former wife of Charles.',
+      x: 620,
+      y: 310,
+    },
+    ...walesExample.people.map((person) => ({
+      ...person,
+      x: person.x + 60,
+      y: person.y + 400,
+    })),
+  ],
+  connections: [
+    {
+      id: 'elizabeth-philip-marriage',
+      from: 'philip',
+      to: 'elizabeth',
+      type: 'wife',
+    },
+    { id: 'charles-mother', from: 'charles', to: 'elizabeth', type: 'mother' },
+    { id: 'charles-father', from: 'charles', to: 'philip', type: 'father' },
+    { id: 'william-father', from: 'william', to: 'charles', type: 'father' },
+    { id: 'william-mother', from: 'william', to: 'diana', type: 'mother' },
+    ...walesExample.connections,
   ],
 };

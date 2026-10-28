@@ -33,7 +33,7 @@ Click **Add person** to start. Click **+** on a person to add a relative or conn
 
 Use **Select** to draw a selection box and move several people together. **Import tree**, **Export tree**, and **Clear tree** are in the sidebar.
 
-New visitors see a British royal family example: William, Catherine, and their three children. Relationships are based on the [Royal Family’s official biography](https://www.royal.uk/the-prince-of-wales).
+The sample follows four generations of the British royal family, from Elizabeth II and Prince Philip to William, Catherine, and their children. Relationships follow the Royal Family’s official biographies of [Charles](https://www.royal.uk/the-king) and [William](https://www.royal.uk/the-prince-of-wales).
 
 ## Development
 
