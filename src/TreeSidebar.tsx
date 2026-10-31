@@ -11,6 +11,7 @@ import {
   Leaf,
 } from './icons';
 import { initials, siblingDetails } from './people';
+import RelationshipFinder from './RelationshipFinder';
 
 interface Props {
   graph: FamilyGraph;
@@ -86,6 +87,7 @@ export default function TreeSidebar({
               Edit person
               <ChevronRight size={15} />
             </button>
+            <RelationshipFinder key={person.id} graph={graph} person={person} />
             <div className="section-label">THEIR STORY</div>
             <p className="story">
               {person.notes ||

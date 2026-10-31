@@ -1,3 +1,4 @@
+import { createFamilyIndex, siblingKind } from './family-index';
 import type { FamilyGraph } from './types';
 
 export const initials = (name: string) =>
@@ -8,42 +9,21 @@ export const initials = (name: string) =>
     .map((w) => w[0])
     .join('');
 export function siblingDetails(graph: FamilyGraph, personId: string) {
-  const parents = new Map<string, string[]>();
-  for (const edge of graph.connections) {
-    const parent = ['mother', 'father'].includes(edge.type)
-      ? edge.to
-      : ['son', 'daughter'].includes(edge.type)
-        ? edge.from
-        : null;
-    const child = ['mother', 'father'].includes(edge.type)
-      ? edge.from
-      : ['son', 'daughter'].includes(edge.type)
-        ? edge.to
-        : null;
-    if (parent && child)
-      parents.set(child, [...(parents.get(child) || []), parent]);
-  }
-  const ownParents = new Set(parents.get(personId) || []);
-  if (!ownParents.size) return [];
+  const index = createFamilyIndex(graph);
   return graph.people
     .filter((person) => person.id !== personId)
     .flatMap((person) => {
-      const shared = (parents.get(person.id) || []).filter((parent) =>
-        ownParents.has(parent),
-      ).length;
-      if (!shared) return [];
+      const kind = siblingKind(index, personId, person.id);
+      if (kind === 'none') return [];
+      const gender = index.genders.get(person.id);
       const relation =
-        person.gender === 'male'
+        gender === 'male'
           ? 'brother'
-          : person.gender === 'female'
+          : gender === 'female'
             ? 'sister'
             : 'sibling';
       return [
-        {
-          person,
-          relation: `${shared === 1 ? 'Half ' : ''}${relation}`,
-          shared,
-        },
+        { person, relation: `${kind === 'half' ? 'Half ' : ''}${relation}` },
       ];
     })
     .sort((a, b) => a.person.name.localeCompare(b.person.name));
