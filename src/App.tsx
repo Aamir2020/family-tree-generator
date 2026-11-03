@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Cordyceps,
   Plus,
@@ -21,6 +21,8 @@ import EditorDialog from './EditorDialog';
 import PersonCard from './PersonCard';
 import TreeSidebar from './TreeSidebar';
 import { errorMessage } from './errors';
+import { findRelationship } from './kinship';
+import { pathHighlight } from './path-highlight';
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
 import type { EditorModal, FamilyGraph, Point, Rectangle } from './types';
 
@@ -67,6 +69,22 @@ export default function App() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [marquee, setMarquee] = useState<Rectangle | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [comparisonId, setComparisonId] = useState('');
+  const relationship = useMemo(
+    () =>
+      selected && comparisonId
+        ? findRelationship(graph, selected, comparisonId)
+        : null,
+    [graph, selected, comparisonId],
+  );
+  const highlight = useMemo(
+    () => pathHighlight(graph, relationship?.path ?? []),
+    [graph, relationship],
+  );
+  function selectPerson(id: string | null) {
+    if (id !== selected) setComparisonId('');
+    setSelected(id);
+  }
   const [modal, setModal] = useState<EditorModal | null>(null);
   const [query, setQuery] = useState('');
   const [zoom, setZoom] = useState(0.85);
@@ -94,6 +112,7 @@ export default function App() {
     function clearSelection(event: KeyboardEvent) {
       if (event.key !== 'Escape' || document.querySelector('dialog[open]'))
         return;
+      setComparisonId('');
       if (!selectMode && selectedIds.length === 0 && !marquee) return;
       drag.current = null;
       setMarquee(null);
@@ -214,7 +233,7 @@ export default function App() {
       ),
       moved: false,
     };
-    if (id) setSelected(id);
+    if (id) selectPerson(id);
   }
   function pointerMove(event: ReactPointerEvent<HTMLDivElement>) {
     const d = drag.current;
@@ -372,9 +391,12 @@ export default function App() {
                 onPointerCancel={pointerUp}
               >
                 <div className="canvas-note">
-                  <span className="live-dot" /> YOUR FAMILY TREE
+                  <span className="live-dot" />{' '}
+                  {highlight ? 'RELATIONSHIP PATH' : 'YOUR FAMILY TREE'}
                   <span className="note-divider" />
-                  Drag to make it yours
+                  {highlight
+                    ? `${highlight.personIds.size} people · Escape to clear`
+                    : 'Drag to make it yours'}
                 </div>
                 <div
                   className="world"
@@ -384,6 +406,7 @@ export default function App() {
                 >
                   <FamilyConnections
                     graph={graph}
+                    highlight={highlight}
                     onRemove={(edges) =>
                       setModal(
                         edges.length === 1
@@ -398,6 +421,18 @@ export default function App() {
                       person={person}
                       isSelected={selected === person.id}
                       isMultiSelected={selectedIds.includes(person.id)}
+                      pathRole={
+                        highlight?.personIds.has(person.id)
+                          ? person.id === highlight.sourceId
+                            ? 'source'
+                            : person.id === highlight.targetId
+                              ? 'target'
+                              : 'member'
+                          : undefined
+                      }
+                      isPathMuted={Boolean(
+                        highlight && !highlight.personIds.has(person.id),
+                      )}
                       isMuted={Boolean(
                         query &&
                         !person.name
@@ -405,7 +440,7 @@ export default function App() {
                           .includes(query.toLowerCase()),
                       )}
                       onPointerDown={pointerDown}
-                      onSelect={setSelected}
+                      onSelect={selectPerson}
                       onOpenModal={setModal}
                     />
                   ))}
@@ -491,7 +526,10 @@ export default function App() {
               <TreeSidebar
                 graph={graph}
                 selectedId={selected}
-                onSelect={setSelected}
+                comparisonId={comparisonId}
+                relationship={relationship}
+                onCompare={setComparisonId}
+                onSelect={selectPerson}
                 onOpenModal={setModal}
                 onImport={() => file.current?.click()}
               />
@@ -530,7 +568,7 @@ export default function App() {
             graph={graph}
             close={() => setModal(null)}
             commit={commit}
-            setSelected={setSelected}
+            setSelected={selectPerson}
             setNotice={setNotice}
           />
         )

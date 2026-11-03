@@ -32,7 +32,7 @@ Open the local URL printed in the terminal, usually `http://localhost:5173`.
 
 Click **Add person** to start. Click **+** on a person to add a relative or connect someone already in the tree. Select a person to edit their details in the sidebar.
 
-Select a person, then use **Find relationship → Compare with** in the sidebar to choose someone else. The result names their relationship and can show the connecting path. It uses recorded family links; missing parents can leave half relationships uncertain.
+Select a person, then use **Find relationship → Compare with** in the sidebar to choose someone else. The result names their relationship and highlights the connecting people and lines on the tree. Use **Clear comparison** or press Escape to restore the full view. It uses recorded family links; missing parents can leave half relationships uncertain.
 
 Use **Select** to draw a selection box and move several people together. **Import tree**, **Export tree**, and **Clear tree** are in the sidebar.
 

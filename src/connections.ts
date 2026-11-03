@@ -1,4 +1,11 @@
-import type { Connection, FamilyGraph, Person } from './types';
+import type { Connection, FamilyGraph, Person, Point } from './types';
+
+export interface HighlightStroke {
+  id: string;
+  connectionId: string;
+  kind: 'parent' | 'partner';
+  path: string;
+}
 
 export interface ConnectionLine {
   id: string;
@@ -7,6 +14,7 @@ export interface ConnectionLine {
   edges: Connection[];
   label?: string;
   description?: string;
+  highlightStrokes?: HighlightStroke[];
 }
 
 const isPartner = (edge: Connection) => ['wife', 'husband'].includes(edge.type);
@@ -35,6 +43,40 @@ function endpoints(a: Person, b: Person, partner: boolean) {
         tx: bx,
         ty: by + (by > ay ? -66 : 66),
       };
+}
+
+// The first half of the symmetric partner Bezier, split exactly at t = 0.5.
+// Starting at either endpoint gives that parent's half of the visible line.
+function halfPartnerPath(start: Point, end: Point): string {
+  const midX = (start.x + end.x) / 2;
+  const midY = (start.y + end.y) / 2;
+  const control1X = (start.x + midX) / 2;
+  const control2X = (start.x + 3 * midX) / 4;
+  const control2Y = (3 * start.y + end.y) / 4;
+  return `M ${start.x} ${start.y} C ${control1X} ${start.y}, ${control2X} ${control2Y}, ${midX} ${midY}`;
+}
+
+export function connectionHighlights(
+  lines: ConnectionLine[],
+  connectionIds: Set<string>,
+): HighlightStroke[] {
+  return lines.flatMap((line) =>
+    line.highlightStrokes
+      ? line.highlightStrokes.filter((stroke) =>
+          connectionIds.has(stroke.connectionId),
+        )
+      : line.edges
+          .filter((edge) => connectionIds.has(edge.id))
+          .map((edge) => ({
+            id: edge.id,
+            connectionId: edge.id,
+            kind:
+              line.kind === 'partner'
+                ? ('partner' as const)
+                : ('parent' as const),
+            path: line.path,
+          })),
+  );
 }
 
 // Rendering groups are derived from the graph; stored parent links stay independent.
@@ -115,6 +157,29 @@ export function connectionLayout(graph: FamilyGraph): ConnectionLine[] {
         path: `M ${child.x} ${busY} V ${child.y}`,
         label,
         edges: child.edges,
+        highlightStrokes: child.edges.flatMap((edge) => {
+          const parent = parentLink(edge)!.parent;
+          const start =
+            parent === couple.from ? { x: sx, y: sy } : { x: tx, y: ty };
+          const end =
+            parent === couple.from ? { x: tx, y: ty } : { x: sx, y: sy };
+          // Trace just this parent and child's part of the shared family lines.
+          // Drawing the whole union would also light up unrelated siblings.
+          return [
+            {
+              id: `${edge.id}-partner-half`,
+              connectionId: edge.id,
+              kind: 'partner' as const,
+              path: halfPartnerPath(start, end),
+            },
+            {
+              id: `${edge.id}-branch`,
+              connectionId: edge.id,
+              kind: 'parent' as const,
+              path: `M ${x} ${y} V ${busY} H ${child.x} V ${child.y}`,
+            },
+          ];
+        }),
         description: `Remove parent connections for ${child.person.name}`,
       });
     }

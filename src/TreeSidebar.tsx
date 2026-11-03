@@ -12,6 +12,7 @@ import {
 } from './icons';
 import { initials, siblingDetails } from './people';
 import RelationshipFinder from './RelationshipFinder';
+import type { KinshipResult } from './kinship';
 
 interface Props {
   graph: FamilyGraph;
@@ -19,6 +20,9 @@ interface Props {
   onSelect: (id: string | null) => void;
   onOpenModal: (modal: EditorModal) => void;
   onImport: () => void;
+  comparisonId: string;
+  relationship: KinshipResult | null;
+  onCompare: (id: string) => void;
 }
 
 export default function TreeSidebar({
@@ -27,6 +31,9 @@ export default function TreeSidebar({
   onSelect,
   onOpenModal,
   onImport,
+  comparisonId,
+  relationship,
+  onCompare,
 }: Props) {
   const person = graph.people.find((person) => person.id === selectedId);
   const connections = graph.connections.filter(
@@ -87,7 +94,13 @@ export default function TreeSidebar({
               Edit person
               <ChevronRight size={15} />
             </button>
-            <RelationshipFinder key={person.id} graph={graph} person={person} />
+            <RelationshipFinder
+              graph={graph}
+              person={person}
+              targetId={comparisonId}
+              result={relationship}
+              onTargetChange={onCompare}
+            />
             <div className="section-label">THEIR STORY</div>
             <p className="story">
               {person.notes ||

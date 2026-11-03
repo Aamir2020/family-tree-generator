@@ -1,21 +1,25 @@
-import { useId, useMemo, useState } from 'react';
+import { useId } from 'react';
 import type { FamilyGraph, Person } from './types';
-import { findRelationship } from './kinship';
+import type { KinshipResult } from './kinship';
 
 interface Props {
   graph: FamilyGraph;
   person: Person;
+  targetId: string;
+  result: KinshipResult | null;
+  onTargetChange: (id: string) => void;
 }
 
-export default function RelationshipFinder({ graph, person }: Props) {
-  const [targetId, setTargetId] = useState('');
+export default function RelationshipFinder({
+  graph,
+  person,
+  targetId,
+  result,
+  onTargetChange,
+}: Props) {
   const selectId = useId();
   const helpId = useId();
   const target = graph.people.find((candidate) => candidate.id === targetId);
-  const result = useMemo(
-    () => (targetId ? findRelationship(graph, person.id, targetId) : null),
-    [graph, person.id, targetId],
-  );
   const options = graph.people
     .filter((candidate) => candidate.id !== person.id)
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -32,7 +36,7 @@ export default function RelationshipFinder({ graph, person }: Props) {
         value={target?.id ?? ''}
         aria-describedby={helpId}
         disabled={!options.length}
-        onChange={(event) => setTargetId(event.target.value)}
+        onChange={(event) => onTargetChange(event.target.value)}
       >
         <option value="">
           {options.length ? 'Choose a person…' : 'Add another person first'}
@@ -64,6 +68,11 @@ export default function RelationshipFinder({ graph, person }: Props) {
               <p className="relationship-note">{result.detail}</p>
             )}
             {result.path.length > 1 && (
+              <p className="relationship-note">
+                The connection is highlighted on the tree.
+              </p>
+            )}
+            {result.path.length > 1 && (
               <details>
                 <summary>Show connection path</summary>
                 <ol aria-label="Connection path">
@@ -78,6 +87,13 @@ export default function RelationshipFinder({ graph, person }: Props) {
                 </ol>
               </details>
             )}
+            <button
+              type="button"
+              className="button relationship-clear"
+              onClick={() => onTargetChange('')}
+            >
+              Clear comparison
+            </button>
           </div>
         )}
       </div>

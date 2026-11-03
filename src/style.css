@@ -1764,3 +1764,51 @@ main {
   border-color: #536244;
   color: #e0e9d6;
 }
+
+.person-card.relationship-muted {
+  opacity: 0.22;
+}
+.person-card.relationship-highlighted {
+  opacity: 1;
+  border-color: #b37630;
+  box-shadow: 0 0 0 3px #b3763026;
+}
+.person-card[data-relationship-role='source'],
+.person-card[data-relationship-role='target'] {
+  border-width: 2px;
+  box-shadow: 0 0 0 4px #b3763033;
+}
+.connections .relationship-muted {
+  opacity: 0.16;
+}
+.relationship-overlay {
+  pointer-events: none;
+}
+.connections .relationship-path-line {
+  fill: none;
+  stroke: #b37630;
+  stroke-width: 3.4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.connections .relationship-partner-line {
+  stroke-dasharray: 5 4;
+}
+.relationship-clear {
+  margin-top: 12px;
+  padding: 7px 10px;
+  min-height: 32px;
+  font-size: 11px;
+}
+[data-theme='dark'] .person-card.relationship-highlighted {
+  border-color: #e6bc69;
+  box-shadow: 0 0 0 3px #e6bc6926;
+}
+[data-theme='dark'] .person-card[data-relationship-role='source'],
+[data-theme='dark'] .person-card[data-relationship-role='target'] {
+  box-shadow: 0 0 0 4px #e6bc6933;
+}
+[data-theme='dark'] .connections .relationship-path-line {
+  stroke: #e6bc69;
+}

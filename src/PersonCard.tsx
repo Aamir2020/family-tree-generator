@@ -8,6 +8,8 @@ interface Props {
   isSelected: boolean;
   isMultiSelected: boolean;
   isMuted: boolean;
+  pathRole?: 'source' | 'target' | 'member';
+  isPathMuted: boolean;
   onPointerDown: (event: PointerEvent<HTMLDivElement>, id: string) => void;
   onSelect: (id: string) => void;
   onOpenModal: (modal: EditorModal) => void;
@@ -18,6 +20,8 @@ export default function PersonCard({
   isSelected,
   isMultiSelected,
   isMuted,
+  pathRole,
+  isPathMuted,
   onPointerDown,
   onSelect,
   onOpenModal,
@@ -28,11 +32,14 @@ export default function PersonCard({
     isSelected && 'selected',
     isMultiSelected && 'multi-selected',
     isMuted && 'muted',
+    pathRole && 'relationship-highlighted',
+    isPathMuted && 'relationship-muted',
   ]
     .filter(Boolean)
     .join(' ');
   return (
     <div
+      data-relationship-role={pathRole}
       role="button"
       tabIndex={0}
       aria-label={`View details for ${person.name}`}
