@@ -8,12 +8,15 @@ A family tree editor built with React and TypeScript. No account or database nee
 
 ## Features
 
-- Add, edit, and delete people and family connections.
-- Connect parents, children, and partners. Sibling relationships are shown automatically.
-- Find grandparents, cousins, in-laws, and other relationships between people.
-- Drag people, move groups, and scroll to zoom.
-- Import and export trees as JSON files.
-- Search people, undo changes, and switch between light and dark mode.
+- **People:** Add, edit, and delete people. Birthdays and notes are optional.
+- **Connections:** Link new or existing parents, children, and partners. Checks prevent duplicate parents, duplicate connections, and ancestry loops.
+- **Parent prompts:** When adding a child or partner, optionally connect the other parent or existing children.
+- **Relationship finder:** Identify ancestors, descendants, siblings, cousins and removals, step-relatives, and in-laws. Show the connection path and flag missing information.
+- **Path highlighting:** Trace connecting people and lines in gold while fading the rest.
+- **Canvas:** Drag people and groups, pan, zoom, and fit the tree on screen. Shared children branch from the couple’s line.
+- **Files:** Import validated JSON backups and export with a filename you choose. Confirm before replacing a tree.
+- **Editing:** Remove connections, confirm person deletion and clearing the tree, and undo the last 30 tree changes during the session.
+- **Search and themes:** Highlight names and switch between light and dark mode. The initial theme follows your system preference.
 
 ## Getting started
 
@@ -30,13 +33,16 @@ Open the local URL printed in the terminal, usually `http://localhost:5173`.
 
 ## Usage
 
-Click **Add person** to start. Click **+** on a person to add a relative or connect someone already in the tree. Select a person to edit their details in the sidebar.
+Select a card to open its details. Use its pencil, trash, or **+** button to edit, delete, or add a relative. File tools are in the right sidebar.
 
-Select a person, then use **Find relationship → Compare with** in the sidebar to choose someone else. The result names their relationship and highlights the connecting people and lines on the tree. Use **Clear comparison** or press Escape to restore the full view. It uses recorded family links; missing parents can leave half relationships uncertain.
+| Action              | How                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Compare people      | Select someone under **Find relationship → Compare with**. Use **Clear comparison** or Escape to clear the highlight.  |
+| Move a group        | Click **Select**, drag a rectangle, then drag a selected card. Shift adds to the selection; Escape clears it.          |
+| Navigate            | Drag empty canvas to pan, scroll to zoom, or click **Fit tree**.                                                       |
+| Remove a connection | Click its line or the × in person details. Shared child lines remove both parent links; person details can remove one. |
 
-Use **Select** to draw a selection box and move several people together. **Import tree**, **Export tree**, and **Clear tree** are in the sidebar.
-
-The sample follows four generations of the British royal family, from Elizabeth II and Prince Philip to William, Catherine, and their children. Relationships follow the Royal Family’s official biographies of [Charles](https://www.royal.uk/the-king) and [William](https://www.royal.uk/the-prince-of-wales).
+The sample spans four generations of the British royal family, from Elizabeth II and Philip to William’s children. Sources: [Charles](https://www.royal.uk/the-king) and [William](https://www.royal.uk/the-prince-of-wales).
 
 ## Development
 
