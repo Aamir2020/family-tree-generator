@@ -42,7 +42,7 @@ Select a card to open its details. Use its pencil, trash, or **+** button to edi
 | Navigate            | Drag empty canvas to pan, scroll to zoom, or click **Fit tree**.                                                       |
 | Remove a connection | Click its line or the × in person details. Shared child lines remove both parent links; person details can remove one. |
 
-The sample spans four generations of the British royal family, from Elizabeth II and Philip to William’s children. Sources: [Charles](https://www.royal.uk/the-king) and [William](https://www.royal.uk/the-prince-of-wales).
+The sample spans four generations of the British royal family, from Elizabeth II and Philip to William’s children.
 
 ## Development
 
