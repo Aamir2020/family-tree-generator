@@ -3,6 +3,7 @@ type IconProps = Omit<SVGProps<SVGSVGElement>, 'name'> & { size?: number };
 type FungusProps = ImgHTMLAttributes<HTMLImageElement> & { size?: number };
 import cordycepsUrl from './assets/cordyceps.svg';
 const paths = {
+  LayoutTree: 'M9 3h6v4H9Z M3 17h6v4H3Z M15 17h6v4h-6Z M12 7v5 M6 17v-5h12v5',
   Scan: 'M8 3H3v5 M16 3h5v5 M3 16v5h5 M21 16v5h-5 M9 9h6v6H9Z',
   Pencil: 'M16 3l5 5 M4 15L16 3a3.5 3.5 0 0 1 5 5L9 20l-6 1Z M4 15l5 5',
   Sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M5 19l1.5-1.5 M17.5 6.5L19 5',
@@ -91,3 +92,5 @@ export const Moon = (p: IconProps) => <Icon name="Moon" {...p} />;
 export const Pencil = (p: IconProps) => <Icon name="Pencil" {...p} />;
 
 export const Scan = (p: IconProps) => <Icon name="Scan" {...p} />;
+
+export const LayoutTree = (p: IconProps) => <Icon name="LayoutTree" {...p} />;

@@ -23,6 +23,7 @@ import TreeSidebar from './TreeSidebar';
 import { errorMessage } from './errors';
 import { findRelationship } from './kinship';
 import { pathHighlight } from './path-highlight';
+import { autoArrange } from './auto-layout';
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
 import type { EditorModal, FamilyGraph, Point, Rectangle } from './types';
 
@@ -37,6 +38,11 @@ type DragState =
       positions: Map<string, Point>;
       moved: boolean;
     });
+
+interface HistoryEntry {
+  graph: FamilyGraph;
+  view?: { pan: Point; zoom: number };
+}
 
 const KEY = 'kindred-tree-v1';
 function load() {
@@ -90,7 +96,7 @@ export default function App() {
   const [zoom, setZoom] = useState(0.85);
   const [pan, setPan] = useState({ x: 0, y: 15 });
   const [notice, setNotice] = useState('');
-  const [history, setHistory] = useState<FamilyGraph[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [storageError, setStorageError] = useState(false);
   const file = useRef<HTMLInputElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
@@ -143,29 +149,39 @@ export default function App() {
     element.addEventListener('wheel', wheelZoom, { passive: false });
     return () => element.removeEventListener('wheel', wheelZoom);
   }, [zoom, pan]);
-  function commit(next: FamilyGraph) {
+  function commit(next: FamilyGraph, restoreViewport = false) {
     setSelectedIds((ids) =>
       ids.filter((id) => next.people.some((person) => person.id === id)),
     );
-    setHistory((h) => [...h.slice(-29), structuredClone(graph)]);
+    setHistory((h) => [
+      ...h.slice(-29),
+      {
+        graph: structuredClone(graph),
+        ...(restoreViewport ? { view: { pan, zoom } } : {}),
+      },
+    ]);
     setGraph(next);
   }
   function undo() {
     const previous = history.at(-1);
     if (previous) {
-      setGraph(previous);
+      setGraph(previous.graph);
+      if (previous.view) {
+        setPan(previous.view.pan);
+        setZoom(previous.view.zoom);
+      }
       setHistory((h) => h.slice(0, -1));
     }
   }
-  function fit() {
-    if (!graph.people.length) {
+  function fit(tree: FamilyGraph = graph) {
+    if (!tree.people.length) {
       setPan({ x: 0, y: 0 });
       setZoom(0.85);
       return;
     }
     const rect = canvas.current!.getBoundingClientRect();
-    const xs = graph.people.map((p) => p.x);
-    const ys = graph.people.map((p) => p.y);
+    const xs = tree.people.map((p) => p.x);
+    const ys = tree.people.map((p) => p.y);
     const minX = Math.min(...xs);
     const minY = Math.min(...ys);
     const width = Math.max(...xs) - minX + 220;
@@ -173,13 +189,25 @@ export default function App() {
     const scale = Math.min(
       1,
       (rect.width - 100) / width,
-      (rect.height - 100) / height,
+      (rect.height - 160) / height,
     );
     setZoom(Math.max(0.15, scale));
     setPan({
       x: (rect.width - width * scale) / 2 - minX * scale,
       y: (rect.height - height * scale) / 2 - minY * scale,
     });
+  }
+  function arrangeTree() {
+    const next = autoArrange(graph);
+    drag.current = null;
+    setMarquee(null);
+    if (next !== graph) commit(next, true);
+    fit(next);
+    setNotice(
+      next === graph
+        ? 'Tree is already arranged.'
+        : 'Tree arranged by generation. Use Undo to restore the previous positions.',
+    );
   }
   useEffect(() => {
     fit();
@@ -266,7 +294,7 @@ export default function App() {
       );
       setMarquee(null);
     } else if (d.type === 'cards' && d.moved && d.snapshot)
-      setHistory((history) => [...history.slice(-29), d.snapshot!]);
+      setHistory((history) => [...history.slice(-29), { graph: d.snapshot! }]);
     drag.current = null;
   }
   function exportTree(filename: string) {
@@ -511,7 +539,11 @@ export default function App() {
                     <ZoomIn size={17} />
                   </button>
                   <span />
-                  <button title="Fit tree" aria-label="Fit tree" onClick={fit}>
+                  <button
+                    title="Fit tree"
+                    aria-label="Fit tree"
+                    onClick={() => fit()}
+                  >
                     <Maximize size={16} />
                   </button>
                 </div>
@@ -532,6 +564,7 @@ export default function App() {
                 onSelect={selectPerson}
                 onOpenModal={setModal}
                 onImport={() => file.current?.click()}
+                onArrange={arrangeTree}
               />
             </div>
             <div className="editor-footer">

@@ -14,6 +14,7 @@ A family tree editor built with React and TypeScript. No account or database nee
 - **Relationship finder:** Identify ancestors, descendants, siblings, cousins and removals, step-relatives, and in-laws. Show the connection path and flag missing information.
 - **Path highlighting:** Trace connecting people and lines in gold while fading the rest.
 - **Canvas:** Drag people and groups, pan, zoom, and fit the tree on screen. Shared children branch from the couple’s line.
+- **Auto-arrange:** Organize the tree into generations, keep partners and co-parents together where possible, and space out separate families. Undo restores your previous positions.
 - **Files:** Import validated JSON backups and export with a filename you choose. Confirm before replacing a tree.
 - **Editing:** Remove connections, confirm person deletion and clearing the tree, and undo the last 30 tree changes during the session.
 - **Search and themes:** Highlight names and switch between light and dark mode. The initial theme follows your system preference.
@@ -40,6 +41,7 @@ Select a card to open its details. Use its pencil, trash, or **+** button to edi
 | Compare people      | Select someone under **Find relationship → Compare with**. Use **Clear comparison** or Escape to clear the highlight.  |
 | Move a group        | Click **Select**, drag a rectangle, then drag a selected card. Shift adds to the selection; Escape clears it.          |
 | Navigate            | Drag empty canvas to pan, scroll to zoom, or click **Fit tree**.                                                       |
+| Auto-arrange        | Click **Auto-arrange** in the sidebar to organize and fit the whole tree. You can still drag cards afterward.          |
 | Remove a connection | Click its line or the × in person details. Shared child lines remove both parent links; person details can remove one. |
 
 The sample spans four generations of the British royal family, from Elizabeth II and Philip to William’s children.

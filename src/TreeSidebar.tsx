@@ -9,6 +9,7 @@ import {
   ChevronRight,
   X,
   Leaf,
+  LayoutTree,
 } from './icons';
 import { initials, siblingDetails } from './people';
 import RelationshipFinder from './RelationshipFinder';
@@ -20,6 +21,7 @@ interface Props {
   onSelect: (id: string | null) => void;
   onOpenModal: (modal: EditorModal) => void;
   onImport: () => void;
+  onArrange: () => void;
   comparisonId: string;
   relationship: KinshipResult | null;
   onCompare: (id: string) => void;
@@ -31,6 +33,7 @@ export default function TreeSidebar({
   onSelect,
   onOpenModal,
   onImport,
+  onArrange,
   comparisonId,
   relationship,
   onCompare,
@@ -50,6 +53,15 @@ export default function TreeSidebar({
         >
           <Plus size={17} />
           Add person
+        </button>
+        <button
+          className="button full"
+          disabled={!graph.people.length}
+          onClick={onArrange}
+          title="Arrange people by generation"
+        >
+          <LayoutTree size={17} />
+          Auto-arrange
         </button>
         <div className="file-actions">
           <button className="button" onClick={onImport}>
