@@ -294,3 +294,61 @@ test('a large branching tree finishes with finite non-overlapping positions', ()
   }
   assertLayout(autoArrange(graph));
 });
+
+test('keeps spouses aligned with their own ancestry instead of crossing branches', () => {
+  const graph: FamilyGraph = {
+    version: 1,
+    title: 'Two ancestral branches',
+    people: [
+      person('a-grandparent'),
+      person('z-grandparent'),
+      person('z-parent'),
+      person('a-parent'),
+      person('child'),
+    ],
+    connections: [
+      { id: 'left', from: 'z-parent', to: 'a-grandparent', type: 'father' },
+      { id: 'right', from: 'a-parent', to: 'z-grandparent', type: 'mother' },
+      { id: 'couple', from: 'z-parent', to: 'a-parent', type: 'wife' },
+      { id: 'dad', from: 'child', to: 'z-parent', type: 'father' },
+      { id: 'mom', from: 'child', to: 'a-parent', type: 'mother' },
+    ],
+  };
+  const arranged = autoArrange(graph);
+  assertLayout(arranged);
+  const p = new Map(arranged.people.map((person) => [person.id, person]));
+  assert.ok(p.get('a-grandparent')!.x < p.get('z-grandparent')!.x);
+  assert.ok(p.get('z-parent')!.x < p.get('a-parent')!.x);
+  assert.equal(autoArrange(arranged), arranged);
+  graph.people.reverse();
+  graph.connections.reverse();
+  assert.deepEqual(positions(autoArrange(graph)), positions(arranged));
+});
+
+test('places the descendant toward their parent when an outside spouse joins', () => {
+  for (const descendant of ['a-descendant', 'z-descendant']) {
+    const graph: FamilyGraph = {
+      version: 1,
+      title: 'Outside spouse',
+      people: [
+        person('a-parent'),
+        person('z-parent'),
+        person(descendant),
+        person('m-spouse'),
+        person('child'),
+      ],
+      connections: [
+        { id: 'parents', from: 'a-parent', to: 'z-parent', type: 'wife' },
+        { id: 'ancestor', from: descendant, to: 'a-parent', type: 'father' },
+        { id: 'couple', from: descendant, to: 'm-spouse', type: 'wife' },
+        { id: 'dad', from: 'child', to: descendant, type: 'father' },
+        { id: 'mom', from: 'child', to: 'm-spouse', type: 'mother' },
+      ],
+    };
+    const arranged = autoArrange(graph);
+    assertLayout(arranged);
+    const p = new Map(arranged.people.map((person) => [person.id, person]));
+    assert.ok(p.get(descendant)!.x < p.get('m-spouse')!.x);
+    assert.equal(autoArrange(arranged), arranged);
+  }
+});

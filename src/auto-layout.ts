@@ -137,6 +137,24 @@ export function autoArrange(graph: FamilyGraph): FamilyGraph {
   }
   const compareUnits = (a: Unit, b: Unit) =>
     comparePeople(a.people[0], b.people[0]);
+  const personX = (id: string) => {
+    const unit = units.get(root(id))!;
+    return (
+      unit.center -
+      unit.width / 2 +
+      unit.people.findIndex((person) => person.id === id) *
+        (CARD_WIDTH + PARTNER_GAP) +
+      CARD_WIDTH / 2
+    );
+  };
+  // Match the renderer: partnered co-parents share a midpoint; other parent
+  // connections attach to the individual card, rather than the group's center.
+  const parentX = (parent: string, child: string) => {
+    const partner = [...(index.parents.get(child) ?? [])]
+      .sort()
+      .find((id) => index.partners.get(parent)?.has(id));
+    return partner ? (personX(parent) + personX(partner)) / 2 : personX(parent);
+  };
   const sorted = [...units.values()].sort(compareUnits);
   const remaining = new Map(sorted.map((unit) => [unit.id, unit.parents.size]));
   const ready = sorted.filter((unit) => !unit.parents.size);
@@ -196,10 +214,17 @@ export function autoArrange(graph: FamilyGraph): FamilyGraph {
       for (const level of sequence) {
         const row = rows.get(level)!;
         const score = (unit: Unit) => {
-          const neighbors = [...unit[direction]].map((id) => units.get(id)!);
-          return neighbors.length
-            ? neighbors.reduce((sum, neighbor) => sum + neighbor.center, 0) /
-                neighbors.length
+          const targets = unit.people.flatMap((person) =>
+            [...(index[direction].get(person.id) ?? [])].map((neighbor) =>
+              direction === 'parents'
+                ? parentX(neighbor, person.id) -
+                  (personX(person.id) - unit.center)
+                : personX(neighbor) -
+                  (parentX(person.id, neighbor) - unit.center),
+            ),
+          );
+          return targets.length
+            ? targets.reduce((sum, target) => sum + target, 0) / targets.length
             : unit.center;
         };
         const scores = new Map(row.map((unit) => [unit.id, score(unit)]));
@@ -207,6 +232,28 @@ export function autoArrange(graph: FamilyGraph): FamilyGraph {
           (a, b) => scores.get(a.id)! - scores.get(b.id)! || compareUnits(a, b),
         );
         positionRows();
+        if (direction === 'parents') {
+          for (const unit of row) {
+            // A spouse without recorded ancestry takes the outside position.
+            // When both spouses have parents, their order follows those branches
+            // instead of alphabetically swapping them and crossing the lines.
+            const targets = new Map(
+              unit.people.map((person) => {
+                const parents = [...(index.parents.get(person.id) ?? [])];
+                return [
+                  person.id,
+                  parents.length
+                    ? parents.reduce(
+                        (sum, parent) => sum + parentX(parent, person.id),
+                        0,
+                      ) / parents.length
+                    : unit.center,
+                ];
+              }),
+            );
+            unit.people.sort((a, b) => targets.get(a.id)! - targets.get(b.id)!);
+          }
+        }
       }
     }
     const firstLevel = Math.min(...levels);
