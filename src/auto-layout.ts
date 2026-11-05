@@ -26,6 +26,38 @@ interface FamilyLayout {
   firstLevel: number;
 }
 
+interface Segment {
+  from: number;
+  to: number;
+}
+
+// Count reversed endpoint orders in O(n log n). Shared starts and shared ends
+// are junctions, not crossings; sorting equal starts by end handles both.
+function crossingCount(segments: Segment[]): number {
+  const ends = [...segments]
+    .sort((a, b) => a.from - b.from || a.to - b.to)
+    .map((segment) => segment.to);
+  const buffer = [...ends];
+  function merge(start: number, end: number): number {
+    if (end - start < 2) return 0;
+    const middle = Math.floor((start + end) / 2);
+    let count = merge(start, middle) + merge(middle, end);
+    let left = start;
+    let right = middle;
+    for (let at = start; at < end; at++) {
+      if (left < middle && (right >= end || ends[left] <= ends[right]))
+        buffer[at] = ends[left++];
+      else {
+        buffer[at] = ends[right++];
+        count += middle - left;
+      }
+    }
+    for (let at = start; at < end; at++) ends[at] = buffer[at];
+    return count;
+  }
+  return merge(0, ends.length);
+}
+
 // Layout changes only coordinates. Family relationships and manual editing stay
 // independent of the temporary partner/co-parent groups used for positioning.
 export function autoArrange(graph: FamilyGraph): FamilyGraph {
@@ -187,6 +219,33 @@ export function autoArrange(graph: FamilyGraph): FamilyGraph {
         }
       }
     }
+    // Count generations relative to relatives, not just from the oldest known
+    // ancestor. One branch may have more recorded history than the other.
+    const generations = new Map<string, number>([[start.id, 0]]);
+    const queue = [start];
+    let consistent = true;
+    for (let at = 0; at < queue.length; at++) {
+      const unit = queue[at];
+      for (const [neighbors, step] of [
+        [unit.parents, -1],
+        [unit.children, 1],
+      ] as const) {
+        for (const id of neighbors) {
+          const level = generations.get(unit.id)! + step;
+          if (!generations.has(id)) {
+            generations.set(id, level);
+            queue.push(units.get(id)!);
+          } else if (generations.get(id) !== level) consistent = false;
+        }
+      }
+    }
+    // Cross-generation partnerships can make equal generation spacing
+    // impossible. Keep the ancestry-safe topological levels in that case.
+    if (consistent) {
+      const first = Math.min(...generations.values());
+      for (const unit of component)
+        unit.level = generations.get(unit.id)! - first;
+    }
     const rows = new Map<number, Unit[]>();
     for (const unit of component)
       rows.set(unit.level, [...(rows.get(unit.level) ?? []), unit]);
@@ -255,6 +314,76 @@ export function autoArrange(graph: FamilyGraph): FamilyGraph {
           }
         }
       }
+    }
+    const parentLinks = component.flatMap((unit) =>
+      unit.people.flatMap((child) =>
+        [...(index.parents.get(child.id) ?? [])].map((parent) => ({
+          parent,
+          child: child.id,
+          first: units.get(root(parent))!.level,
+          last: unit.level,
+        })),
+      ),
+    );
+    function cost() {
+      const boundaries = new Map<number, Segment[]>();
+      let length = 0;
+      for (const link of parentLinks) {
+        const from = parentX(link.parent, link.child);
+        const to = personX(link.child);
+        length += (to - from) ** 2;
+        for (let level = link.first; level < link.last; level++) {
+          const fraction = (level - link.first) / (link.last - link.first);
+          const nextFraction =
+            (level + 1 - link.first) / (link.last - link.first);
+          const segment = {
+            from: from + (to - from) * fraction,
+            to: from + (to - from) * nextFraction,
+          };
+          const segments = boundaries.get(level) ?? [];
+          segments.push(segment);
+          boundaries.set(level, segments);
+        }
+      }
+      return {
+        crossings: [...boundaries.values()].reduce(
+          (sum, segments) => sum + crossingCount(segments),
+          0,
+        ),
+        length,
+      };
+    }
+    // Barycenters provide a starting order, but cannot detect when an aunt or
+    // uncle falls between another family's parents. Refine whole family blocks
+    // and their members against actual endpoint crossings before shortening lines.
+    let best = cost();
+    function trySwap<T>(items: T[], at: number, reposition: boolean) {
+      [items[at], items[at + 1]] = [items[at + 1], items[at]];
+      if (reposition) positionRows();
+      const candidate = cost();
+      if (
+        candidate.crossings < best.crossings ||
+        (candidate.crossings === best.crossings &&
+          candidate.length < best.length - 0.01)
+      ) {
+        best = candidate;
+        return true;
+      }
+      [items[at], items[at + 1]] = [items[at + 1], items[at]];
+      if (reposition) positionRows();
+      return false;
+    }
+    for (let pass = 0; pass < 4; pass++) {
+      let changed = false;
+      for (const level of pass % 2 ? [...levels].reverse() : levels) {
+        const row = rows.get(level)!;
+        for (let at = 0; at < row.length - 1; at++)
+          changed = trySwap(row, at, true) || changed;
+        for (const unit of row)
+          for (let at = 0; at < unit.people.length - 1; at++)
+            changed = trySwap(unit.people, at, false) || changed;
+      }
+      if (!changed) break;
     }
     const firstLevel = Math.min(...levels);
     families.push({

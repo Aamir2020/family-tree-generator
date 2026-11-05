@@ -352,3 +352,122 @@ test('places the descendant toward their parent when an outside spouse joins', (
     assert.equal(autoArrange(arranged), arranged);
   }
 });
+
+function extendedFamily(extraHistory: boolean): FamilyGraph {
+  const graph: FamilyGraph = {
+    version: 1,
+    title: 'Two sides with aunts and uncles',
+    people: [
+      'paternal-grandfather',
+      'paternal-grandmother',
+      'maternal-grandfather',
+      'maternal-grandmother',
+      'dad',
+      'mom',
+      'paternal-aunt',
+      'paternal-uncle',
+      'maternal-aunt',
+      'maternal-uncle',
+      'child',
+    ].map((id) => person(id)),
+    connections: [
+      {
+        id: 'paternal-couple',
+        from: 'paternal-grandfather',
+        to: 'paternal-grandmother',
+        type: 'wife',
+      },
+      {
+        id: 'maternal-couple',
+        from: 'maternal-grandfather',
+        to: 'maternal-grandmother',
+        type: 'wife',
+      },
+      { id: 'parents', from: 'dad', to: 'mom', type: 'wife' },
+      { id: 'child-dad', from: 'child', to: 'dad', type: 'father' },
+      { id: 'child-mom', from: 'child', to: 'mom', type: 'mother' },
+    ],
+  };
+  for (const [side, siblings] of [
+    ['paternal', ['dad', 'paternal-aunt', 'paternal-uncle']],
+    ['maternal', ['mom', 'maternal-aunt', 'maternal-uncle']],
+  ] as const) {
+    for (const child of siblings) {
+      graph.connections.push(
+        {
+          id: child + '-dad',
+          from: child,
+          to: side + '-grandfather',
+          type: 'father',
+        },
+        {
+          id: child + '-mom',
+          from: child,
+          to: side + '-grandmother',
+          type: 'mother',
+        },
+      );
+    }
+  }
+  if (extraHistory) {
+    graph.people.push(person('great-grandfather'));
+    graph.connections.push({
+      id: 'extra-history',
+      from: 'paternal-grandfather',
+      to: 'great-grandfather',
+      type: 'father',
+    });
+  }
+  return graph;
+}
+
+function assertSeparateBranches(graph: FamilyGraph) {
+  const p = new Map(graph.people.map((person) => [person.id, person]));
+  const paternalChildren = ['dad', 'paternal-aunt', 'paternal-uncle'].map(
+    (id) => p.get(id)!,
+  );
+  const maternalChildren = ['mom', 'maternal-aunt', 'maternal-uncle'].map(
+    (id) => p.get(id)!,
+  );
+  assert.equal(
+    new Set([...paternalChildren, ...maternalChildren].map((p) => p.y)).size,
+    1,
+    'parents and their siblings share a row',
+  );
+  assert.equal(
+    p.get('paternal-grandfather')!.y,
+    p.get('maternal-grandfather')!.y,
+  );
+  const paternalLeft =
+    p.get('paternal-grandfather')!.x < p.get('maternal-grandfather')!.x;
+  const left = paternalLeft ? paternalChildren : maternalChildren;
+  const right = paternalLeft ? maternalChildren : paternalChildren;
+  assert.ok(
+    Math.max(...left.map((p) => p.x)) < Math.min(...right.map((p) => p.x)),
+    'the two grandparent branches must not interleave',
+  );
+}
+
+test('aunts stay beside parents even when one side has more recorded ancestors', () => {
+  const graph = extendedFamily(true);
+  const arranged = autoArrange(graph);
+  assertLayout(arranged);
+  assertSeparateBranches(arranged);
+  assert.equal(autoArrange(arranged), arranged);
+  graph.people.reverse();
+  graph.connections.reverse();
+  assert.deepEqual(positions(autoArrange(graph)), positions(arranged));
+});
+
+test('keeps paternal and maternal grandparents over their own children despite name order', () => {
+  for (let seed = 0; seed < 24; seed++) {
+    const graph = extendedFamily(false);
+    graph.people.forEach((person, i) => {
+      person.name = String((i * 7 + seed * (i + 3)) % 29).padStart(2, '0');
+    });
+    const arranged = autoArrange(graph);
+    assertLayout(arranged);
+    assertSeparateBranches(arranged);
+    assert.equal(autoArrange(arranged), arranged);
+  }
+});
