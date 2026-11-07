@@ -63,3 +63,7 @@ Application code is in `src/`, tests in `tests/`, and README images in `docs/ima
 Your tree is saved in this browser only. Other visitors cannot see it. Export a JSON backup before clearing browser data or switching devices.
 
 Imports support Zermanzer JSON files only; GEDCOM and other services’ formats are not supported.
+
+## Roadmap
+
+See the [feature roadmap](ROADMAP.md) for proposed improvements and completed items.
